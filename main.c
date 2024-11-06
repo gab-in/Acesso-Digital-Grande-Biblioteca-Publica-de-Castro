@@ -5,14 +5,14 @@
 
 typedef struct Livro{
 	int codigo;
-	char titulo[20], autor[15], genero[15];
+	char titulo[30], autor[15], genero[15];
 	int Status; // 1-Disponível, 2-Reservado, 3-Emprestado
 	int numReservas, quTotal;
 }Livro;
 
 typedef struct Leitor{
 	int codigo;
-	char nome[20], email[15];
+	char nome[20], email[25];
 	int qtdeEmp, histMulta;
 }Leitor;
 
@@ -21,6 +21,17 @@ typedef struct Funcionario{
 	char nome[20], cargo[15];
 	int totalEmp, totalDev;
 }Funcionario;
+
+typedef struct emprestimo{
+	int codigo, codLivro, codLeitor;
+	char data_emp[20], data_dev[20];
+	int status; //0-ativo 1-finalizado
+}emprestimo;
+
+typedef struct reserva{
+	int codigo, codLivro, codLeitor;
+	char data_reserva[20];
+}
 
 
 
@@ -31,9 +42,9 @@ void Cadastros(){
 	int tipo;
 
 	printf("\n-----------------------------------------------------------------------");
-	printf("\nQue tipo de cadastro? Escolha uma das opções listadas abaixo");
+	printf("\nQue tipo de cadastro? Escolha uma das opcoes listadas abaixo");
 	printf("\n-----------------------------------------------------------------------");
-	printf("\n(1) Leitores | (2) Funcionários | (3) Voltar");
+	printf("\n(1) Leitores | (2) Funcionarios | (3) Voltar");
 	printf("\n\nDigite um número: "); scanf("%d",&tipo); while ((getchar()) != '\n');
 	
 	switch(tipo){
@@ -71,10 +82,10 @@ void Inicio(){ //EXISTE SISTEMA DE CONTA!!! Vai ter que existir MenuLeitor(); Me
 	int esc;
 	
 	printf("\n-----------------------------------------------------------------------");
-	printf("\nPor favor, escolha uma das opções listadas abaixo!");
+	printf("\nPor favor, escolha uma das opcoes listadas abaixo!");
 	printf("\n-----------------------------------------------------------------------");
 	printf("\n(1) Cadastrar | (2) Login | (3) Sair"); 
-	printf("\n\nDigite um número: "); scanf("%d",&esc);
+	printf("\n\nDigite um numero: "); scanf("%d",&esc);
 	
 	switch(esc){
 		case 1: //Escolheu Cadastrar
@@ -100,6 +111,6 @@ int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 	Inicio();
 	
 	printf("\n-----------------------------------------------------------------------");
-	printf("\nAgradecemos a prefrência! Volte sempre.");
+	printf("\nAgradecemos a preferencia! Volte sempre.");
 	printf("\n-----------------------------------------------------------------------");
 }
