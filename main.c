@@ -1,5 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include<string.h>
+#include<ctype.h>
+
+const char SENHA_ADM[]="5678";
+const char SENHA_OP[]="1234";
 
 typedef struct Leitor{
 	int codigo;
@@ -33,7 +38,10 @@ typedef struct reserva{
 }Reserva;
 
 
+//Funcoes Danh
+int login(Funcionario *user);
 
+void formatarString(char *s,int op);
 
 //Funções da minha parte
 
@@ -103,11 +111,14 @@ void InUser(){ //EXISTE SISTEMA DE CONTA!!! Vai ter que existir MenuLeitor(); Me
 		case 1: //Escolheu Cadastrar
 			Cadastros();
 			break;
-		case 2: //Escolheu Login
+		case 2:
 			break;
 		case 3: //Escolheu Sair
 			return;
-	} InUser();
+		default:
+			InUser();
+			break;
+	}InUser();
 }
 
 
@@ -213,11 +224,7 @@ Funcionario *LogFuncionario(){
 	
 	int i;	
 	for(i=1;i<=linhas;i++){
-		fscanf(poLog,"%d",&liveLog[i].codigo);
-		fgets(liveLog[i].nome,20,poLog);
-		fgets(liveLog[i].cargo,15,poLog);
-		fscanf(poLog,"%d",&liveLog[i].totalEmp);
-		fscanf(poLog,"%d",&liveLog[i].totalDev);
+		fscanf(poLog,"%d %s %s %d %d",&liveLog[i].codigo,liveLog[i].nome,liveLog[i].cargo,&liveLog[i].totalEmp, &liveLog[i].totalDev);
 	}
 	fclose(poLog);
 	return liveLog;
@@ -272,11 +279,81 @@ int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 	Emprestimo * LLE /*Live Log Emprestimo*/= LogEmprestimo();
 	Reserva * LLR /*Live Log Reserva*/= LogReserva();
 	
-	//
-	
-	InUser();
+
+	while(login(LLF));
 	
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nAgradecemos a preferencia! Volte sempre.");
 	printf("\n-----------------------------------------------------------------------");
+}
+
+int login(Funcionario *user){
+	int i,tamanho,validaNome=0, validaSenha=0;
+	char nome[20],senha[20],cargo[15];
+	fflush(stdin);
+	printf("\nDigite seu nome:");
+	gets(nome);	
+	printf("\nDigite a senha:");
+	scanf("%s",senha);
+	formatarString(nome,1);
+	for(i=1;i<=tamanho;i++){
+		if(strcmp(nome,user[i].nome)==0){
+			validaNome++;
+			strcpy(cargo,user[i].cargo);
+		}
+	}
+	if(strcmp("adm",cargo)==0){
+		if(strcmp(SENHA_ADM,senha)==0){
+			validaSenha++;
+		}
+	}
+		
+	if(strcmp("operador",cargo)==0){
+		if(strcmp(SENHA_OP,senha)==0){
+			validaSenha++;
+		}
+	}
+
+	if(validaNome==0 || validaSenha==0){
+		if(validaNome==0){
+			printf("\nNome fora do sistema.");
+		}
+		if(validaSenha==0){
+			printf("\nSenha incorreta.");
+			
+		}
+		return 1;
+	}
+		
+	printf("\nUsuario Logado!\n");	
+	InUser(); //só depois do login efetuado pode acessar outras funcionalidades
+	return 0;
+	
+}
+void formatarString(char *s,int op){
+	int i,inicial=1;
+
+	if(op==1){//1 para formatar e ficar como no arquivo
+		for(i=0;*(s+i)!='\0';i++){
+			if(*(s+i)==' '){
+				*(s+i)='_';
+				inicial=1;
+			}
+			else if(inicial==1){
+				*(s+i)=toupper(*(s+i));
+				inicial=0;
+			}
+			else{
+				*(s+i)=tolower(*(s+i));
+			}
+		}
+	}
+	else{//Ler o que esta no arquivo sem '_'
+		for(i=0;*(s+i)!='\0';i++){
+			if(*(s+i)=='_'){
+				*(s+i)=' ';
+				inicial=1;
+			}
+		}
+	}
 }
