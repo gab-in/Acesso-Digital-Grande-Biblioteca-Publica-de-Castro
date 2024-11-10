@@ -43,6 +43,8 @@ int login(Funcionario *user);
 
 void formatarString(char *s,int op);
 
+void inputStr(char *str,int tamanho);
+
 //Funções da minha parte
 
 void Cadastros(){
@@ -97,6 +99,10 @@ void Cadastros(){
 }
 
 //Funções gerais/básicas do programa
+
+void menuOp();
+
+void menuAdm();
 
 void InUser(){ //EXISTE SISTEMA DE CONTA!!! Vai ter que existir MenuLeitor(); MenuFuncionario(); futuramente
 	int esc;
@@ -257,6 +263,7 @@ Leitor *LogLeitor(){
 	return liveLog;
 }
 
+void registrar();
 
 //
 //
@@ -292,11 +299,12 @@ int login(Funcionario *user){
 	char nome[20],senha[20],cargo[15];
 	fflush(stdin);
 	printf("\nDigite seu nome:");
-	gets(nome);	
+	inputStr(nome,20);
 	printf("\nDigite a senha:");
 	scanf("%s",senha);
 	formatarString(nome,1);
-	for(i=1;i<=tamanho;i++){
+
+	for(i=1;i<=sizeof(user);i++){
 		if(strcmp(nome,user[i].nome)==0){
 			validaNome++;
 			strcpy(cargo,user[i].cargo);
@@ -305,12 +313,16 @@ int login(Funcionario *user){
 	if(strcmp("adm",cargo)==0){
 		if(strcmp(SENHA_ADM,senha)==0){
 			validaSenha++;
+			printf("\nUsuario Logado!\n");
+			menuAdm();	
 		}
 	}
 		
 	if(strcmp("operador",cargo)==0){
 		if(strcmp(SENHA_OP,senha)==0){
 			validaSenha++;
+			printf("\nUsuario Logado!\n");
+			menuOp();	
 		}
 	}
 
@@ -324,9 +336,6 @@ int login(Funcionario *user){
 		}
 		return 1;
 	}
-		
-	printf("\nUsuario Logado!\n");	
-	InUser(); //só depois do login efetuado pode acessar outras funcionalidades
 	return 0;
 	
 }
@@ -357,3 +366,65 @@ void formatarString(char *s,int op){
 		}
 	}
 }
+
+void inputStr(char *str,int tamanho){
+	if (fgets(str, tamanho, stdin) != NULL) {
+        size_t len = strlen(str); //esse tipo garante a compatibilidade entre plataformas, tamanho em bytes
+        if (len > 0 && str[len - 1] == '\n') {
+            str[len - 1] = '\0'; // Remove o caractere de nova linha
+        }
+    }
+}
+
+void menuOp(){
+	int esc;
+	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nPor favor, escolha uma das opcoes listadas abaixo!");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n(1) Registrar | (2) Sair"); 
+	printf("\n\nDigite um numero: "); scanf("%d",&esc);
+	
+	switch(esc){
+		case 1: //Escolheu registrar
+			registrar();
+			break;
+		case 2:
+			return;
+		default:
+			menuOp();
+			break;
+	}menuOp();
+}
+
+void menuAdm(){
+	int esc;
+	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nPor favor, escolha uma das opcoes listadas abaixo!");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n(1) Registrar | (2) Cadastrar | (3) Relatorios | (4) Configuracoes | (5) Permissoes |(6) Sair"); 
+	printf("\n\nDigite um numero: "); scanf("%d",&esc);
+	
+	switch(esc){
+		case 1: //Escolheu registrar
+			registrar();
+			break;
+		case 2: //Escolheu cadastrar
+			Cadastros();
+			break;
+		case 3: //Escolheu ver relatorios
+			break;
+		case 4: //Escolheu configurar (o que quer que isso seja)
+			break;
+		case 5: //Escolheu gerenciar permissoes
+			break;
+		case 6:
+			return;
+		default:
+			menuAdm();
+			break;
+	}menuAdm();
+}
+
+void registrar(){}
