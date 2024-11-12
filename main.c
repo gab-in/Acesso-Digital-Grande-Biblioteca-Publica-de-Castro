@@ -135,96 +135,80 @@ void InUser(){ //EXISTE SISTEMA DE CONTA!!! Vai ter que existir MenuLeitor(); Me
 //
 Reserva *LogReserva(){
 	FILE *poLog = fopen("reservas.txt","r");
-	if(!poLog){
-	poLog = fopen("reservas.txt","w");
-	//Ainda preciso inserir a primeira linha do arquivo novo criado, mas isso e problema para o eu do futuro
-	printf("\n-----------------------------------------------------------------------");
-	printf("\nAVISO: O arquivo de dados 'reservas.txt'nao foi encontrado nesta maquina, entao um novo foi criado.");
-	printf("\n-----------------------------------------------------------------------\n");
-	}
-
 	int linhas;
 	fscanf(poLog,"%d",&linhas);
+	if(linhas==0){ 
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nAVISO: O arquivo de dados 'reservas.txt' nao foi encontrado nesta maquina, entao um novo foi criado.");
+		printf("\n-----------------------------------------------------------------------\n");
+		fprintf(poLog,"0");
+	}
 	
 	Reserva *liveLog = (Reserva *)malloc((linhas+1)*sizeof(Reserva));
+	
 	int i;	
 	for(i=1;i<=linhas;i++){
-		fscanf(poLog,"%d",&liveLog[i].codigo);
-		fscanf(poLog,"%d",&liveLog[i].codLivro);
-		fscanf(poLog,"%d",&liveLog[i].codLeitor);
-		fgets(liveLog[i].data_reserva,20,poLog);
+		fscanf(poLog,"%d %d %d %s",&liveLog[i].codigo, &liveLog[i].codLivro, &liveLog[i].codLeitor, liveLog[i].data_reserva);
 	}
+	
 	fclose(poLog);
 	return liveLog;
 }
+
 Emprestimo *LogEmprestimo(){
 	FILE *poLog = fopen("emprestimos.txt","r");
-	if(!poLog){
-	poLog = fopen("emprestimos.txt","w");
-	//Ainda preciso inserir a primeira linha do arquivo novo criado, mas isso e problema para o eu do futuro
-	printf("\n-----------------------------------------------------------------------");
-	printf("\nAVISO: O arquivo de dados 'emprestimos.txt'nao foi encontrado nesta maquina, entao um novo foi criado.");
-	printf("\n-----------------------------------------------------------------------\n");
-	}
-
 	int linhas;
 	fscanf(poLog,"%d",&linhas);
+	if(linhas==0){ 
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nAVISO: O arquivo de dados 'emprestimos.txt' nao foi encontrado nesta maquina, entao um novo foi criado.");
+		printf("\n-----------------------------------------------------------------------\n");
+		fprintf(poLog,"0");
+	}
 	
 	Emprestimo *liveLog = (Emprestimo *)malloc((linhas+1)*sizeof(Emprestimo));
 	
 	int i;	
 	for(i=1;i<=linhas;i++){
-		fscanf(poLog,"%d",&liveLog[i].codigo);
-		fscanf(poLog,"%d",&liveLog[i].codLivro);
-		fscanf(poLog,"%d",&liveLog[i].codLeitor);
-		fgets(liveLog[i].data_emp,20,poLog);
-		fgets(liveLog[i].data_dev,20,poLog);
-		fscanf(poLog,"%d",&liveLog[i].status);
+		fscanf(poLog,"%d %d %d %s %s %d",&liveLog[i].codigo, &liveLog[i].codLivro, &liveLog[i].codLeitor, liveLog[i].data_emp, liveLog[i].data_dev, &liveLog[i].status);
 	}
+	
 	fclose(poLog);
 	return liveLog;
 }
-Livro *LogLivro(){
-	FILE *poLog = fopen("livros.txt","r");
-	if(!poLog){
-	poLog = fopen("livros.txt","w");
-	//Ainda preciso inserir a primeira linha do arquivo novo criado, mas isso e problema para o eu do futuro
-	printf("\n-----------------------------------------------------------------------");
-	printf("\nAVISO: O arquivo de dados 'livros.txt'nao foi encontrado nesta maquina, entao um novo foi criado.");
-	printf("\n-----------------------------------------------------------------------\n");
-	}
 
+Livro *LogLivro(){
+	FILE *poLog = fopen("livros.txt","a+");
 	int linhas;
 	fscanf(poLog,"%d",&linhas);
+	if(linhas==0){ 
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nAVISO: O arquivo de dados 'livros.txt' nao foi encontrado nesta maquina, entao um novo foi criado.");
+		printf("\n-----------------------------------------------------------------------\n");
+		fprintf(poLog,"0");
+	}
 	
 	Livro *liveLog = (Livro *)malloc((linhas+1)*sizeof(Livro));
 	
 	int i;	
 	for(i=1;i<=linhas;i++){
-		fscanf(poLog,"%d",&liveLog[i].codigo);
-		fgets(liveLog[i].titulo,20,poLog);
-		fgets(liveLog[i].autor,15,poLog);
-		fgets(liveLog[i].genero,15,poLog);
-		fscanf(poLog,"%d",&liveLog[i].Status);
-		fscanf(poLog,"%d",&liveLog[i].numReservas);
-		fscanf(poLog,"%d",&liveLog[i].quTotal);
+		fscanf(poLog,"%d %s %s %s %d %d %d",&liveLog[i].codigo, liveLog[i].titulo, liveLog[i].autor, liveLog[i].genero, &liveLog[i].Status, &liveLog[i].numReservas, &liveLog[i].quTotal);
 	}
+	
 	fclose(poLog);
 	return liveLog;
 }
 
 Funcionario *LogFuncionario(){
-	FILE *poLog = fopen("funcionarios.txt","r");
-	if(!poLog){
-	poLog = fopen("funcionarios.txt","w");
-	//Ainda preciso inserir a primeira linha do arquivo novo criado, mas isso e problema para o eu do futuro
-	printf("\n-----------------------------------------------------------------------");
-	printf("\nAVISO: O arquivo de dados 'funcionarios.txt'nao foi encontrado nesta maquina, entao um novo foi criado.");
-	printf("\n-----------------------------------------------------------------------\n");
-	}
-
+	FILE *poLog = fopen("funcionarios.txt","a+");
 	int linhas;
 	fscanf(poLog,"%d",&linhas);
+	if(linhas==0){ 
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nAVISO: O arquivo de dados 'funcionarios.txt' nao foi encontrado nesta maquina, entao um novo foi criado.");
+		printf("\n-----------------------------------------------------------------------\n");
+		fprintf(poLog,"0");
+	}	
 	
 	Funcionario *liveLog = (Funcionario *)malloc((linhas+1)*sizeof(Funcionario));
 	
@@ -232,33 +216,29 @@ Funcionario *LogFuncionario(){
 	for(i=1;i<=linhas;i++){
 		fscanf(poLog,"%d %s %s %d %d",&liveLog[i].codigo,liveLog[i].nome,liveLog[i].cargo,&liveLog[i].totalEmp, &liveLog[i].totalDev);
 	}
+	
 	fclose(poLog);
 	return liveLog;
 }
 
 Leitor *LogLeitor(){
-	FILE *poLog = fopen("leitores.txt","r");
-	if(!poLog){
-	poLog = fopen("leitores.txt","w");
-	//Ainda preciso inserir a primeira linha do arquivo novo criado, mas isso e problema para o eu do futuro
-	printf("\n-----------------------------------------------------------------------");
-	printf("\nAVISO: O arquivo de dados 'leitores.txt'nao foi encontrado nesta maquina, entao um novo foi criado.");
-	printf("\n-----------------------------------------------------------------------\n");
-	}
-	
+	FILE *poLog = fopen("leitores.txt","a+");
 	int linhas;
 	fscanf(poLog,"%d",&linhas);
+	if(linhas==0){ 
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nAVISO: O arquivo de dados 'leitores.txt' nao foi encontrado nesta maquina, entao um novo foi criado.");
+		printf("\n-----------------------------------------------------------------------\n");
+		fprintf(poLog,"0");
+	}
 	
 	Leitor *liveLog = (Leitor *)malloc((linhas+1)*sizeof(Leitor));
 	
 	int i;	
 	for(i=1;i<=linhas;i++){
-		fscanf(poLog,"%d",&liveLog[i].codigo);
-		fgets(liveLog[i].nome,20,poLog);
-		fgets(liveLog[i].email,15,poLog);
-		fscanf(poLog,"%d",&liveLog[i].qtdeEmp);
-		fscanf(poLog,"%d",&liveLog[i].histMulta);
+		fscanf(poLog,"%d %s %s %d %d",&liveLog[i].codigo, liveLog[i].nome, liveLog[i].email, &liveLog[i].qtdeEmp, &liveLog[i].histMulta);
 	}
+
 	fclose(poLog);
 	return liveLog;
 }
@@ -301,7 +281,7 @@ int login(Funcionario *user){
 	printf("\nDigite seu nome:");
 	inputStr(nome,20);
 	printf("\nDigite a senha:");
-	scanf("%s",senha);
+	inputStr(senha,20);
 	formatarString(nome,1);
 
 	for(i=1;i<=sizeof(user);i++){
