@@ -47,32 +47,18 @@ void inputStr(char *str,int tamanho);
 
 //Funções da minha parte
 
-void Cadastros(){
+void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 	int tipo;
 
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nQue tipo de cadastro? Escolha uma das opcoes listadas abaixo");
 	printf("\n-----------------------------------------------------------------------");
-	printf("\n(1) Leitores | (2) Funcionarios | (3) Voltar");
+	printf("\n(1) Leitores | (2) Funcionarios | (3) Livro | (4) Voltar");
 	printf("\n\nDigite um número: "); scanf("%d",&tipo); while ((getchar()) != '\n');
 	
 	switch(tipo){
 		case 1: //Escolheu Cadastrar Leitor
-			system("clear");
-			Leitor *novoLeitor=(Leitor*)malloc(sizeof(Leitor));
-			novoLeitor->qtdeEmp=0;
-			novoLeitor->histMulta=0;
 			
-			//Nome
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o seu nome (20 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");fgets(novoLeitor->nome, 20, stdin);
-			//Email
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o email (15 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: "); fgets(novoLeitor->email, 15, stdin);
 			
 			return;
 		case 2: //Escolheu Cadastrar Funcionario
@@ -85,48 +71,26 @@ void Cadastros(){
 			printf("\n-----------------------------------------------------------------------");
 			printf("\nInforme o seu nome (20 caracteres max.)");
 			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");fgets(novoFunc->nome, 20, stdin);
+			printf("\n\nDigite: ");inputStr(novoFunc->nome,20);
 			//Cargo
 			printf("\n-----------------------------------------------------------------------");
 			printf("\nInforme o cargo (15 caracteres max.)");
 			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: "); fgets(novoFunc->cargo, 15, stdin);
+			printf("\n\nDigite: ");inputStr(novoFunc->cargo,15);
 			break;
-		case 3: //Escolheu Sair
+		case 3:
 
+			break;
+		case 4:
 			return;
-	} Cadastros();
+	} Cadastros(LLL,LLF,LLI);
 }
 
 //Funções gerais/básicas do programa
 
 void menuOp();
 
-void menuAdm();
-
-void InUser(){ //EXISTE SISTEMA DE CONTA!!! Vai ter que existir MenuLeitor(); MenuFuncionario(); futuramente
-	int esc;
-	
-	printf("\n-----------------------------------------------------------------------");
-	printf("\nPor favor, escolha uma das opcoes listadas abaixo!");
-	printf("\n-----------------------------------------------------------------------");
-	printf("\n(1) Cadastrar | (2) Login | (3) Sair"); 
-	printf("\n\nDigite um numero: "); scanf("%d",&esc);
-	
-	switch(esc){
-		case 1: //Escolheu Cadastrar
-			Cadastros();
-			break;
-		case 2:
-			break;
-		case 3: //Escolheu Sair
-			return;
-		default:
-			InUser();
-			break;
-	}InUser();
-}
-
+void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR);
 
 //
 //
@@ -224,6 +188,7 @@ Funcionario *LogFuncionario(){
 Leitor *LogLeitor(){
 	FILE *poLog = fopen("leitores.txt","a+");
 	int linhas;
+	
 	fscanf(poLog,"%d",&linhas);
 	if(linhas==0){ 
 		printf("\n-----------------------------------------------------------------------");
@@ -233,12 +198,16 @@ Leitor *LogLeitor(){
 	}
 	
 	Leitor *liveLog = (Leitor *)malloc((linhas+1)*sizeof(Leitor));
-	
 	int i;	
+	liveLog[0].codigo=linhas;
+	printf("\nPrimeiro coisa do vetor: %d",liveLog[0].codigo);
 	for(i=1;i<=linhas;i++){
 		fscanf(poLog,"%d %s %s %d %d",&liveLog[i].codigo, liveLog[i].nome, liveLog[i].email, &liveLog[i].qtdeEmp, &liveLog[i].histMulta);
 	}
-
+	
+	for(i=1;i<=linhas;i++){
+		printf("%d %s %s %d %d",liveLog[i].codigo, liveLog[i].nome, liveLog[i].email, liveLog[i].qtdeEmp, liveLog[i].histMulta);
+	}
 	fclose(poLog);
 	return liveLog;
 }
@@ -266,8 +235,19 @@ int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 	Emprestimo * LLE /*Live Log Emprestimo*/= LogEmprestimo();
 	Reserva * LLR /*Live Log Reserva*/= LogReserva();
 	
-
-	while(login(LLF));
+	int aux=login(LLF);
+	while(aux==0) aux=login(LLF);
+	
+	switch(aux){
+		case 1:
+			menuAdm(LLL, LLF, LLI, LLE, LLR);
+			break;
+		case 2:
+			menuOp();
+			break;
+		default:
+			break;
+	}
 	
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nAgradecemos a preferencia! Volte sempre.");
@@ -294,15 +274,15 @@ int login(Funcionario *user){
 		if(strcmp(SENHA_ADM,senha)==0){
 			validaSenha++;
 			printf("\nUsuario Logado!\n");
-			menuAdm();	
+			return 1;
 		}
 	}
-		
+	
 	if(strcmp("operador",cargo)==0){
 		if(strcmp(SENHA_OP,senha)==0){
 			validaSenha++;
 			printf("\nUsuario Logado!\n");
-			menuOp();	
+			return 2;	
 		}
 	}
 
@@ -314,7 +294,6 @@ int login(Funcionario *user){
 			printf("\nSenha incorreta.");
 			
 		}
-		return 1;
 	}
 	return 0;
 	
@@ -377,7 +356,7 @@ void menuOp(){
 	}menuOp();
 }
 
-void menuAdm(){
+void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR){
 	int esc;
 	
 	printf("\n-----------------------------------------------------------------------");
@@ -391,7 +370,7 @@ void menuAdm(){
 			registrar();
 			break;
 		case 2: //Escolheu cadastrar
-			Cadastros();
+			Cadastros(LLL, LLF, LLI);
 			break;
 		case 3: //Escolheu ver relatorios
 			break;
@@ -402,9 +381,9 @@ void menuAdm(){
 		case 6:
 			return;
 		default:
-			menuAdm();
+			menuAdm(LLL,LLF,LLI,LLE,LLR);
 			break;
-	}menuAdm();
+	}menuAdm(LLL,LLF,LLI,LLE,LLR);
 }
 
 void registrar(){}
