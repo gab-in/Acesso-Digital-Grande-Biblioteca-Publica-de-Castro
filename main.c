@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<ctype.h>
+#include <time.h>
 
 const char SENHA_ADM[]="5678";
 const char SENHA_OP[]="1234";
@@ -45,9 +46,12 @@ void formatarString(char *s,int op);
 
 void inputStr(char *str,int tamanho);
 
-//Funções da minha parte
+//Funções Gab
 
 void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI);
+
+void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
+
 
 //Funções gerais/básicas do programa
 
@@ -104,7 +108,7 @@ int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 }
 
 int login(Funcionario *user){
-	int i,tamanho,validaNome=0, validaSenha=0;
+	int i,validaNome=0, validaSenha=0;
 	char nome[20],senha[20],cargo[15];
 	fflush(stdin);
 	printf("\nDigite seu nome:");
@@ -217,7 +221,7 @@ void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva
 	
 	switch(esc){
 		case 1: //Escolheu registrar
-			registrar();
+			Registros(LLL,LLI,LLE);
 			break;
 		case 2: //Escolheu cadastrar
 			Cadastros(LLL, LLF, LLI);
@@ -247,12 +251,11 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 	
 	switch(tipo){
 		case 1: //Escolheu Cadastrar Leitor
-			system("clear");
 			char nome[20],email[25];
-			Leitor *novoLeitor=(Leitor*)malloc(sizeof(Leitor));
-			novoLeitor->codigo=((LLL[0].codigo)+1);
-			novoLeitor->qtdeEmp=0;
-			novoLeitor->histMulta=0;
+			Leitor novoLeitor;
+			novoLeitor.codigo=((LLL[0].codigo)+1);
+			novoLeitor.qtdeEmp=0;
+			novoLeitor.histMulta=0;
 			
 			//Nome
 			printf("\n-----------------------------------------------------------------------");
@@ -260,17 +263,17 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 			printf("\n-----------------------------------------------------------------------");
 			printf("\n\nDigite: ");inputStr(nome,20);
 			formatarString(nome,1);
-			strcpy(novoLeitor->nome,nome);
+			strcpy(novoLeitor.nome,nome);
 			//email
 			printf("\n-----------------------------------------------------------------------");
 			printf("\nInforme o email (25 caracteres max.)");
 			printf("\n-----------------------------------------------------------------------");
 			printf("\n\nDigite: ");inputStr(email,25);
-			strcpy(novoLeitor->email,email);
+			strcpy(novoLeitor.email,email);
 
-			realloc(LLL,((LLL[0].codigo)+1)*(sizeof(Leitor)));
+			LLL=realloc(LLL,((LLL[0].codigo)+1)*(sizeof(Leitor)));
 
-			LLL[(LLL[0].codigo)+1]=*novoLeitor;
+			LLL[(LLL[0].codigo)+1]=novoLeitor;
 			LLL[0].codigo+=1;
 			
 			//tirar dps
@@ -285,12 +288,11 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 			
 			return;
 		case 2: //Escolheu Cadastrar Funcionario
-			system("clear");
 			char n[20];
-			Funcionario *novoFunc=(Funcionario*)malloc(sizeof(Funcionario));
-			novoFunc->codigo=((LLF[0].codigo)+1);
-			novoFunc->totalEmp=0;
-			novoFunc->totalDev=0;
+			Funcionario novoFunc;
+			novoFunc.codigo=((LLF[0].codigo)+1);
+			novoFunc.totalEmp=0;
+			novoFunc.totalDev=0;
 			
 			//Nome
 			printf("\n-----------------------------------------------------------------------");
@@ -298,15 +300,15 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 			printf("\n-----------------------------------------------------------------------");
 			printf("\n\nDigite: ");inputStr(n,20);
 			formatarString(n,1);
-			strcpy(novoFunc->nome,n);
+			strcpy(novoFunc.nome,n);
 			//Cargo
 			printf("\n-----------------------------------------------------------------------");
 			printf("\nInforme o cargo (15 caracteres max.)");
 			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(novoFunc->cargo,15);
+			printf("\n\nDigite: ");inputStr(novoFunc.cargo,15);
 
-			realloc(LLF,((LLF[0].codigo)+1)*(sizeof(Funcionario)));
-			LLF[(LLF[0].codigo)+1]=*novoFunc;
+			LLF=realloc(LLF,((LLF[0].codigo)+1)*(sizeof(Funcionario)));
+			LLF[(LLF[0].codigo)+1]=novoFunc;
 			LLF[0].codigo+=1;
 
 			//tirar dps
@@ -318,12 +320,11 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 			
 			break;
 		case 3: //escolheu livro
-			system("clear");
 			char titulo[30],autor[20], genero[15];
-			Livro *novoLivro=(Livro*)malloc(sizeof(Livro));
-			novoLivro->codigo=((LLI[0].codigo)+1);
-			novoLivro->Status=1;
-			novoLivro->numReservas=0;
+			Livro novoLivro;
+			novoLivro.codigo=((LLI[0].codigo)+1);
+			novoLivro.Status=1;
+			novoLivro.numReservas=0;
 			
 			
 			//titulo
@@ -331,28 +332,28 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 			printf("\nInforme o titulo do livro (30 caracteres max.)");
 			printf("\n-----------------------------------------------------------------------");
 			printf("\n\nDigite: ");inputStr(titulo,30);
-			strcpy(novoLivro->titulo,titulo);
+			strcpy(novoLivro.titulo,titulo);
 			//autor
 			printf("\n-----------------------------------------------------------------------");
 			printf("\nInforme o autor (20 caracteres max.)");
 			printf("\n-----------------------------------------------------------------------");
 			printf("\n\nDigite: ");inputStr(autor,20);
-			strcpy(novoLivro->autor,autor);
+			strcpy(novoLivro.autor,autor);
 			//genero
 			printf("\n-----------------------------------------------------------------------");
 			printf("\nInforme o genero (15 caracteres max.)");
 			printf("\n-----------------------------------------------------------------------");
 			printf("\n\nDigite: ");inputStr(genero,15);
-			strcpy(novoLivro->genero,genero);
+			strcpy(novoLivro.genero,genero);
 			//quantidade
 			printf("\n-----------------------------------------------------------------------");
 			printf("\nInforme quantos livros tem");
 			printf("\n-----------------------------------------------------------------------");
 			printf("\n\nDigite: ");
-			scanf("%d",&novoLivro->quTotal);
+			scanf("%d",&novoLivro.quTotal);
 
-			realloc(LLI,((LLI[0].codigo)+1)*(sizeof(Livro)));
-			LLI[(LLI[0].codigo)+1]=*novoLivro;
+			LLI=realloc(LLI,((LLI[0].codigo)+1)*(sizeof(Livro)));
+			LLI[(LLI[0].codigo)+1]=novoLivro;
 			LLI[0].codigo+=1;
 
 			//tirar dps
@@ -367,6 +368,105 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 			return;
 		}
 }
+
+
+
+
+
+void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
+	int codli,codle,esc,aux=0;
+	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nQue registro deseja fazer? Escolha uma das opções abaixo");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n(1) Emprestimo | (2) Devolucao | (3) Voltar");
+	printf("\n\nDigite um numero: "); scanf("%d",&esc); while ((getchar()) != '\n');
+	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nObserve a lista de livros: ");
+	printf("\n-----------------------------------------------------------------------");
+	
+	for(int i=1;i<=LLI[0].codigo;i++){
+		printf("\n\nCódigo: %d | %s - %s - %s | ",LLI[i].codigo, LLI[i].titulo, LLI[i].autor, LLI[i].genero);
+		switch(LLI[i].Status){
+			case 1:
+				printf("Disponivel");
+				break;
+			case 2:
+				printf("Reservado");
+				break;
+			case 3:
+				printf("Emprestado");
+				break;
+		};
+	}
+	
+	switch(esc){
+		case 1:
+			while(!aux){
+				printf("\n-----------------------------------------------------------------------");
+				printf("\n:Insira o codigo do livro que deseja emprestar: ( (0) Para retornar )");
+				printf("\n-----------------------------------------------------------------------");
+				printf("\n\nDigite um numero: "); scanf("%d",&codli);
+				
+				if(LLI[codli].Status!=1)printf("\nEste livro esta indisponivel!!");
+				if(esc==0)break;
+				else aux=1;
+				}
+			aux=0;
+			while(!aux){
+				printf("\n-----------------------------------------------------------------------");
+				printf("\n:Insira o codigo do usuario para o qual deseja emprestar: ( (0) Para retornar )");
+				printf("\n-----------------------------------------------------------------------");
+				printf("\n\nDigite um numero: "); scanf("%d",&codle);
+				
+				if(LLL[codle].qtdeEmp>=3)printf("\nLimite de emprestimos atingido para este usuario!!");
+				if(esc==0)break;
+				else aux=1;		
+			}
+			
+			char data[20];
+			Emprestimo novoEmp;
+			time_t agora; //Foi definido numa biblioteca de tempo
+			time(&agora);//Função da bib.h que retorna todos os segundos passados desde 1970 (Não ironicamente)
+			struct tm *tempoStruct=localtime(&agora);//Função da bib.h que converte os segundos nas formas de contar
+			
+			novoEmp.codigo=(LLE[0].codigo)+1;
+			novoEmp.codLivro=codli;
+			novoEmp.codLeitor=codle;
+			strftime(data,20,"%d/%m/%Y",tempoStruct);
+			strcpy(novoEmp.data_emp,data);
+			
+			time(&agora);
+			agora=agora+604800;//Segundos em 1 semana
+			tempoStruct=localtime(&agora);
+			
+			strftime(data,20,"%d/%m/%Y",tempoStruct);
+			strcpy(novoEmp.data_dev,data);
+			novoEmp.status=1;
+			
+			printf("%d %d %d %s %s %d",novoEmp.codigo,novoEmp.codLivro,novoEmp.codLeitor,novoEmp.data_emp,novoEmp.data_dev,novoEmp.status);
+			
+			LLE=realloc(LLE,((LLE[0].codigo)+1)*(sizeof(Emprestimo)));
+			LLE[(LLE[0].codigo)+1]=novoEmp;
+			LLE[0].codigo+=1;
+			
+			for(int i=1;i<=LLE[0].codigo;i++){
+				printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			return;
+		default:
+			Registros(LLL,LLI,LLE);
+			break;
+	} Registros(LLL,LLI,LLE);
+}
+
+
+
 
 Reserva *LogReserva(){
 	FILE *poLog = fopen("reservas.txt","r");
