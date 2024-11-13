@@ -50,6 +50,10 @@ void inputStr(char *str,int tamanho);
 
 void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI);
 
+void CadLeitor(Leitor *LLL);
+void CadFunc(Funcionario *LLF);
+void CadLivro(Livro *LLI);
+
 void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
 
 
@@ -72,7 +76,11 @@ Leitor *LogLeitor();
 
 void registrar();
 
+ //relatorios
+void relatorios(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR);
 
+void livroDisp(Livro *LLI);
+void livroEmp(Livro *LLI);
 
 int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 	printf("-----------------------------------------------------------------------");	
@@ -227,6 +235,7 @@ void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva
 			Cadastros(LLL, LLF, LLI);
 			break;
 		case 3: //Escolheu ver relatorios
+			relatorios(LLL,LLF,LLI,LLE,LLR);
 			break;
 		case 4: //Escolheu configurar (o que quer que isso seja)
 			break;
@@ -251,126 +260,200 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 	
 	switch(tipo){
 		case 1: //Escolheu Cadastrar Leitor
-			char nome[20],email[25];
-			Leitor novoLeitor;
-			novoLeitor.codigo=((LLL[0].codigo)+1);
-			novoLeitor.qtdeEmp=0;
-			novoLeitor.histMulta=0;
-			
-			//Nome
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o seu nome (20 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(nome,20);
-			formatarString(nome,1);
-			strcpy(novoLeitor.nome,nome);
-			//email
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o email (25 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(email,25);
-			strcpy(novoLeitor.email,email);
-
-			LLL=realloc(LLL,((LLL[0].codigo)+1)*(sizeof(Leitor)));
-
-			LLL[(LLL[0].codigo)+1]=novoLeitor;
-			LLL[0].codigo+=1;
-			
-			//tirar dps
-			printf("Leitores: ");			
-			printf("\nPrimeiro coisa do vetor: %d",LLL[0].codigo);
-			for(int i=1;i<=LLL[0].codigo;i++){
-				printf("\n%d %s %s %d %d",LLL[i].codigo, LLL[i].nome, LLL[i].email, LLL[i].qtdeEmp, LLL[i].histMulta);
-			}
-			//
-	
-
-			
+			CadLeitor(LLL);			
 			return;
 		case 2: //Escolheu Cadastrar Funcionario
-			char n[20];
-			Funcionario novoFunc;
-			novoFunc.codigo=((LLF[0].codigo)+1);
-			novoFunc.totalEmp=0;
-			novoFunc.totalDev=0;
-			
-			//Nome
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o seu nome (20 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(n,20);
-			formatarString(n,1);
-			strcpy(novoFunc.nome,n);
-			//Cargo
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o cargo (15 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(novoFunc.cargo,15);
-
-			LLF=realloc(LLF,((LLF[0].codigo)+1)*(sizeof(Funcionario)));
-			LLF[(LLF[0].codigo)+1]=novoFunc;
-			LLF[0].codigo+=1;
-
-			//tirar dps
-			printf("Funcionarios: ");			
-			printf("\nPrimeiro coisa do vetor: %d",LLF[0].codigo);
-			for(int i=1;i<=LLF[0].codigo;i++){
-				printf("\n%d %s %s %d %d",LLF[i].codigo, LLF[i].nome, LLF[i].cargo, LLF[i].totalEmp, LLF[i].totalDev);
-			}
-			
+			CadFunc(LLF);
 			break;
 		case 3: //escolheu livro
-			char titulo[30],autor[20], genero[15];
-			Livro novoLivro;
-			novoLivro.codigo=((LLI[0].codigo)+1);
-			novoLivro.Status=1;
-			novoLivro.numReservas=0;
-			
-			
-			//titulo
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o titulo do livro (30 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(titulo,30);
-			strcpy(novoLivro.titulo,titulo);
-			//autor
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o autor (20 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(autor,20);
-			strcpy(novoLivro.autor,autor);
-			//genero
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme o genero (15 caracteres max.)");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");inputStr(genero,15);
-			strcpy(novoLivro.genero,genero);
-			//quantidade
-			printf("\n-----------------------------------------------------------------------");
-			printf("\nInforme quantos livros tem");
-			printf("\n-----------------------------------------------------------------------");
-			printf("\n\nDigite: ");
-			scanf("%d",&novoLivro.quTotal);
-
-			LLI=realloc(LLI,((LLI[0].codigo)+1)*(sizeof(Livro)));
-			LLI[(LLI[0].codigo)+1]=novoLivro;
-			LLI[0].codigo+=1;
-
-			//tirar dps
-			printf("Livros: ");			
-			printf("\nPrimeiro coisa do vetor: %d",LLI[0].codigo);
-			for(int i=1;i<=LLI[0].codigo;i++){
-				printf("\n%d %s %s %s %d %d %d",LLI[i].codigo, LLI[i].titulo, LLI[i].autor, LLI[i].genero, LLI[i].Status,LLI[i].numReservas, LLI[i].quTotal);
-			}
-
+			CadLivro(LLI);
 			break;
 		case 4:
 			return;
 		}
 }
 
+void CadLeitor(Leitor *LLL){
+	char nome[20],email[25];
+	Leitor novoLeitor;
+	novoLeitor.codigo=((LLL[0].codigo)+1);
+	novoLeitor.qtdeEmp=0;
+	novoLeitor.histMulta=0;
+		
+		//Nome
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme o seu nome (20 caracteres max.)");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");inputStr(nome,20);
+	formatarString(nome,1);
+	strcpy(novoLeitor.nome,nome);
+	//email
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme o email (25 caracteres max.)");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");inputStr(email,25);
+	strcpy(novoLeitor.email,email);
+
+	LLL=realloc(LLL,((LLL[0].codigo)+1)*(sizeof(Leitor)));
+
+	LLL[(LLL[0].codigo)+1]=novoLeitor;
+	LLL[0].codigo+=1;
+	
+	//tirar dps
+	printf("Leitores: ");			
+	printf("\nPrimeiro coisa do vetor: %d",LLL[0].codigo);
+	for(int i=1;i<=LLL[0].codigo;i++){
+		printf("\n%d %s %s %d %d",LLL[i].codigo, LLL[i].nome, LLL[i].email, LLL[i].qtdeEmp, LLL[i].histMulta);
+	}
+	//
+}
+
+void CadFunc(Funcionario *LLF){
+	char n[20];
+	Funcionario novoFunc;
+	novoFunc.codigo=((LLF[0].codigo)+1);
+	novoFunc.totalEmp=0;
+	novoFunc.totalDev=0;
+	
+	//Nome
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme o seu nome (20 caracteres max.)");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");inputStr(n,20);
+	formatarString(n,1);
+	strcpy(novoFunc.nome,n);
+	//Cargo
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme o cargo (15 caracteres max.)");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");inputStr(novoFunc.cargo,15);
+
+	LLF=realloc(LLF,((LLF[0].codigo)+1)*(sizeof(Funcionario)));
+	LLF[(LLF[0].codigo)+1]=novoFunc;
+	LLF[0].codigo+=1;
+
+	//tirar dps
+	printf("Funcionarios: ");			
+	printf("\nPrimeiro coisa do vetor: %d",LLF[0].codigo);
+	for(int i=1;i<=LLF[0].codigo;i++){
+		printf("\n%d %s %s %d %d",LLF[i].codigo, LLF[i].nome, LLF[i].cargo, LLF[i].totalEmp, LLF[i].totalDev);
+	}
+}
+
+void CadLivro(Livro *LLI){
+	char titulo[30],autor[20], genero[15];
+	Livro novoLivro;
+	novoLivro.codigo=((LLI[0].codigo)+1);
+	novoLivro.Status=1;
+	novoLivro.numReservas=0;
+	//titulo
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme o titulo do livro (30 caracteres max.)");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");inputStr(titulo,30);
+	formatarString(titulo,1);
+	strcpy(novoLivro.titulo,titulo);
+	//autor
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme o autor (20 caracteres max.)");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");inputStr(autor,20);
+	formatarString(autor,1);
+	strcpy(novoLivro.autor,autor);
+	//genero
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme o genero (15 caracteres max.)");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");inputStr(genero,15);
+	formatarString(genero,1);
+	strcpy(novoLivro.genero,genero);
+	//quantidade
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nInforme quantos livros tem");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n\nDigite: ");
+	scanf("%d",&novoLivro.quTotal);
+
+	LLI=realloc(LLI,((LLI[0].codigo)+1)*(sizeof(Livro)));
+	LLI[(LLI[0].codigo)+1]=novoLivro;
+	LLI[0].codigo+=1;
+
+	//tirar dps
+	printf("Livros: ");			
+	printf("\nPrimeiro coisa do vetor: %d",LLI[0].codigo);
+	for(int i=1;i<=LLI[0].codigo;i++){
+		printf("\n%d %s %s %s %d %d %d",LLI[i].codigo, LLI[i].titulo, LLI[i].autor, LLI[i].genero, LLI[i].Status,LLI[i].numReservas, LLI[i].quTotal);
+	}
+}
 
 
+void relatorios(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR){
+	int esc;	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nRelatorios disponiveis:");
+	printf("\n-----------------------------------------------------------------------");
+	printf("\n(1) Lista de Livros Disponiveis | (2) Lista de Livros Emprestados | (3) Emprestimos ativos | (4) Historico de multas | (5) Movimentacoes funcionarios |(6) Livros mais emprestados | (7) Reservas em aberto | (8) Sair"); 
+	printf("\n\nDigite um numero: "); scanf("%d",&esc);
+	
+	switch(esc){
+		case 1: //livros disponiveis
+			livroDisp(LLI);
+			break;
+		case 2: //livros emprestados
+			livroEmp(LLI);
+			break;
+		case 3: //emprestimos ativos
+			break;
+		case 4: //historicos multas
+			break;
+		case 5: //movimentacoes
+			break;
+		case 6: //mais emprestados
+			break;
+		case 7: //reservas em aberto
+			break;
+		case 8: //sair
+			return;
+		default:
+			relatorios(LLL,LLF,LLI,LLE,LLR);
+			break;
+	}relatorios(LLL,LLF,LLI,LLE,LLR);
+}
+
+void livroDisp(Livro *LLI){
+	int i;
+	printf("\nLivros Disponiveis:");
+	printf("\n-----------------------------------------------------------------------");
+	
+	for(i=1;i<=LLI[0].codigo;i++){
+		if(LLI[i].Status==1){
+			formatarString(LLI[i].titulo,0);
+			printf("\n\n%s", LLI[i].titulo );
+			printf("\nQuantidade disponivel: %d", (LLI[i].quTotal-LLI[i].numReservas));
+			formatarString(LLI[i].titulo,1);
+		}
+	}
+	printf("\n\n-----------------------------------------------------------------------");
+
+	
+}
+
+void livroEmp(Livro *LLI){
+	int i;
+	printf("\nLivros Emprestados:");
+	printf("\n-----------------------------------------------------------------------");
+	
+	for(i=1;i<=LLI[0].codigo;i++){
+		if(LLI[i].Status==3){
+			formatarString(LLI[i].titulo,0);
+			printf("\n\n%s", LLI[i].titulo );
+			printf("\nQuantidade total: %d", LLI[i].quTotal);
+			printf(" | Quantidade reservada: %d", LLI[i].numReservas);
+			formatarString(LLI[i].titulo,1);
+		}
+	}
+	printf("\n\n-----------------------------------------------------------------------");
+}
 
 
 void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
