@@ -1,5 +1,5 @@
 4
-1 Daniel_Dwulatka adm 2 0
+1 Joao_Paulo adm 2 0
 2 Gabriel_Covalski adm 1 1
 3 Tobias_Pedra operador 0 0
-4 Liz_Marrie operador 2 2
+4 Maria_Clara operador 2 2
