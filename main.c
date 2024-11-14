@@ -46,6 +46,13 @@ void formatarString(char *s,int op);
 
 void inputStr(char *str,int tamanho);
 
+void amzLivro(Livro *LLI);
+void amzLeitor(Leitor *LLL);
+void amzFunc(Funcionario *LLF);
+void amzRez(Reserva *LLR);
+void amzEmp(Emprestimo *LLE);
+
+
 //Funções Gab
 
 void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI);
@@ -82,13 +89,13 @@ Funcionario *LogFuncionario();
 
 Leitor *LogLeitor();
 
-void registrar();
 
  //relatorios
 void relatorios(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR);
 
 void livroDisp(Livro *LLI);
 void livroEmp(Livro *LLI);
+void empAtivo(Leitor *LLL,Livro *LLI,Emprestimo *LLE);
 
 int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 	printf("-----------------------------------------------------------------------");	
@@ -216,7 +223,6 @@ void menuOp(){
 	
 	switch(esc){
 		case 1: //Escolheu registrar
-			registrar();
 			break;
 		case 2:
 			return;
@@ -463,6 +469,20 @@ void livroEmp(Livro *LLI){
 	printf("\n\n-----------------------------------------------------------------------");
 }
 
+void empAtivo(Leitor *LLL,Livro *LLI,Emprestimo *LLE){
+	printf("\nEmprestimos Ativos:");
+	printf("\n-----------------------------------------------------------------------");
+	for(int i=1;i<=LLE[0].codigo;i++){
+		if(LLE[i].status==0){
+			formatarString(LLL[LLE[i].codLeitor].nome,0);
+			formatarString(LLI[LLE[i].codLivro].titulo,0);
+			printf("\n\n%s emprestou \"%s\" em %s, prazo para devolucao ate %s", LLL[LLE[i].codLeitor].nome, LLI[LLE[i].codLivro].titulo, LLE[i].data_emp, LLE[i].data_dev);
+			formatarString(LLL[LLE[i].codLeitor].nome,1);
+			formatarString(LLI[LLE[i].codLivro].titulo,1);
+		}
+	}
+	printf("\n\n-----------------------------------------------------------------------");
+}
 
 void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	int esc;
@@ -472,7 +492,8 @@ void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	printf("\n-----------------------------------------------------------------------");
 	printf("\n(1) Emprestimo | (2) Devolucao | (3) Voltar");
 	printf("\n\nDigite um numero: "); scanf("%d",&esc); while ((getchar()) != '\n');
-	
+	printf("\nLinhas totais(na registros): %d",LLE[0].codigo);
+	printf("\nLocal da LLE depois dentro da Registros: %p",LLE);
 	switch(esc){
 		case 1:
 			Emp(LLL,LLI,LLE);
@@ -565,25 +586,35 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	
 	time_t agora; //Foi definido numa biblioteca de tempo
 	time(&agora);//Função da bib.h que retorna todos os segundos passados desde 1970 (Não ironicamente)
-	struct tm *tempoStruct=localtime(&agora);//Função da bib.h que converte os segundos nas formas de contar
+	struct tm *tempoStruct;
+	tempoStruct=localtime(&agora);//Função da bib.h que converte os segundos nas formas de contar
 	
 	novoEmp.codigo=(LLE[0].codigo)+1;
 	novoEmp.codLivro=codli;
 	novoEmp.codLeitor=codle;
-	strftime(data,20,"%d/%m/%Y",tempoStruct);
+	
+	strftime(data,19,"%d/%m/%Y",tempoStruct);
 	strcpy(novoEmp.data_emp,data);
-		
 	time(&agora);
 	agora=agora+604800;//Segundos em 1 semana
 	tempoStruct=localtime(&agora);
 			
-	strftime(data,20,"%d/%m/%Y",tempoStruct);
+	strftime(data,19,"%d/%m/%Y",tempoStruct);
 	strcpy(novoEmp.data_dev,data);
 	novoEmp.status=0;
-	
+	printf("\nLocal da LLE antes da Realloc: %p",LLE);
+	Emprestimo *ptraux=(Emprestimo *)realloc(LLE,sizeof(Emprestimo)*(LLE[0].codigo+2));
+	if(ptraux==NULL){
+		printf("\nRealloc de Emprestimo falhou!");
+		return;
+	}
+	else{
+		LLE=ptraux;
+		printf("\nLocal da LLE depois da Realloc: %p",LLE);
+	}
 	LLE[0].codigo+=1;
-	LLE=realloc(LLE,(LLE[0].codigo)*(sizeof(Emprestimo)));
 	LLE[LLE[0].codigo]=novoEmp;
+	
 	
 	printf("\nLinhas totais: %d",LLE[0].codigo);
 	for(int i=1;i<=LLE[0].codigo;i++){
@@ -593,12 +624,20 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	LLI[codli].Status=3;
 	LLI[codli].quTotal-=1;
 	LLL[codle].qtdeEmp+=1;
+
+	amzEmp(LLE);
+	amzLeitor(LLL);
+	amzLivro(LLI);
+	
+	printf("\nLinhas totais(final da emp): %d",(LLE[0].codigo));
 }
 
 
 
 void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	int aux=0,codli,codle,i;
+	
+	printf("\nLinhas totais: %d",LLE[0].codigo);
 	
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nObserve a lista de livros: ");
@@ -644,7 +683,7 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	aux=0;
 	while(!aux){
 		printf("\n-----------------------------------------------------------------------");
-		printf("\nInsira o codigo do usuario para o qual deseja emprestar: ( (0) Para retornar )");
+		printf("\nInsira o codigo do usuario que esta devolvendo: ( (0) Para retornar )");
 		printf("\n-----------------------------------------------------------------------");
 		printf("\n\nDigite um numero: "); scanf("%d",&codle);
 		
@@ -656,14 +695,19 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	}
 	
 	aux=0;
-	for(int i=1;i<=LLE[0].codigo;i++){
+	printf("\nLLE[0]: %d",LLE[0].codigo);
+	
+	for(i=1;i<=LLE[0].codigo;i++){
+		printf("\nComeço iteração: %d",i);
 		if(LLE[i].codLeitor==codle){//Procura um codigo de leitor igual ao fornecido
 			if(LLE[i].codLivro==codli){//Quando acha um codigo, ve se o codigo do livro é igual ao fornecido
 				if(LLE[i].status==0){//Se encontra, ve se o emprestimo já foi finalizado no passado ou ainda é pendente 
 					aux=i;
+					printf("\nChegou?");
 				}
 			}
 		}
+		printf("\nComeço iteração: %d",i);
 	}
 	
 	if(aux==0){
@@ -678,6 +722,10 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	LLI[codli].Status=temReserva(LLI,codli);//Se nao tem reserva fica disponivel, se tem fica reservado
 	LLI[codli].quTotal+=1;//Coloca a existencia do livro
 	LLE[aux].status=1;//Finaliza o emprestimo
+
+	amzEmp(LLE);
+	amzLeitor(LLL);
+	amzLivro(LLI);
 	
 	for(int i=1;i<=LLE[0].codigo;i++){
 		printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
@@ -860,6 +908,45 @@ Leitor *LogLeitor(){
 	return liveLog;
 }
 
-void registrar(){
-	return;
+
+
+void amzLivro(Livro *LLI){
+	FILE *aqv = fopen("livros.txt","w");	
+	fprintf(aqv,"%d",LLI[0].codigo);
+	for(int i=1;i<=LLI[0].codigo;i++){
+		fprintf(aqv,"\n%d %s %s %s %d %d %d",LLI[i].codigo, LLI[i].titulo, LLI[i].autor, LLI[i].genero, LLI[i].Status,LLI[i].numReservas, LLI[i].quTotal);
+	}
+	fclose(aqv);	
+}
+void amzFunc(Funcionario *LLF){
+	FILE *aqv = fopen("funcionarios.txt","w");	
+	fprintf(aqv,"%d",LLF[0].codigo);
+	for(int i=1;i<=LLF[0].codigo;i++){
+		fprintf(aqv,"\n%d %s %s %d %d",LLF[i].codigo, LLF[i].nome, LLF[i].cargo, LLF[i].totalEmp, LLF[i].totalDev);
+	}
+	fclose(aqv);	
+}
+void amzLeitor(Leitor *LLL){
+	FILE *aqv = fopen("leitores.txt","w");	
+	fprintf(aqv,"%d",LLL[0].codigo);
+	for(int i=1;i<=LLL[0].codigo;i++){
+		fprintf(aqv,"\n%d %s %s %d %d",LLL[i].codigo, LLL[i].nome, LLL[i].email, LLL[i].qtdeEmp, LLL[i].histMulta);
+	}
+	fclose(aqv);	
+}
+void amzRez(Reserva *LLR){
+	FILE *aqv = fopen("reservas.txt","w");	
+	fprintf(aqv,"%d",LLR[0].codigo);
+	for(int i=1;i<=LLR[0].codigo;i++){
+		fprintf(aqv,"\n%d %d %d %s",LLR[i].codigo, LLR[i].codLivro, LLR[i].codLeitor, LLR[i].data_reserva);
+	}
+	fclose(aqv);	
+}
+void amzEmp(Emprestimo *LLE){
+	FILE *aqv = fopen("emprestimos.txt","w");	
+	fprintf(aqv,"%d",LLE[0].codigo);
+	for(int i=1;i<=LLE[0].codigo;i++){
+		fprintf(aqv,"\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
+	}
+	fclose(aqv);	
 }

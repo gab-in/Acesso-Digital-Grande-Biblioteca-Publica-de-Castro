@@ -1,6 +1,6 @@
 5
-1 A_Revolucao_Das_Bichas Jorge_Bom Fabula 1 0 4
-2 A_Sutil_Arte_De_Ligar_Pra_Ex Marcao_do_Posto Terror 3 1 3
+1 A_Revolucao_Das_Bichas Jorge_Bom Fabula 3 0 3
+2 A_Sutil_Arte_De_Ligar_Pra_Ex Marcao_do_PostoTerror Terror 1 1 3
 3 Mais_Diabo_Que_O_Experto Monte Ficcao 3 0 1
-4 Minecraft:A_Nova_Psicologia_Do_Sucesso Felipe_Neto Biografia 1 0 5
-5 Onde_Estao_As_Chaves? Nilce_Morreto Comedia 1 0 2
+4 Minecraft:A_Nova_Psicologia_DoFelipe_Neto Felipe_Neto Biografia 3 0 4
+5 Onde_Estao_As_Chaves? Nilce_Morreto Comedia 1 0 1
