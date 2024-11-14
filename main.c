@@ -54,6 +54,14 @@ void CadLeitor(Leitor *LLL);
 void CadFunc(Funcionario *LLF);
 void CadLivro(Livro *LLI);
 
+void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
+
+void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
+float devMulta(Emprestimo *LLE, int aux);
+int temReserva(Livro *LLI, int i);
+int tempoPassado(int data, int data_atual);
+
+
 void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
 
 
@@ -457,13 +465,32 @@ void livroEmp(Livro *LLI){
 
 
 void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
-	int codli,codle,esc,aux=0;
+	int esc;
 	
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nQue registro deseja fazer? Escolha uma das opções abaixo");
 	printf("\n-----------------------------------------------------------------------");
 	printf("\n(1) Emprestimo | (2) Devolucao | (3) Voltar");
 	printf("\n\nDigite um numero: "); scanf("%d",&esc); while ((getchar()) != '\n');
+	
+	switch(esc){
+		case 1:
+			Emp(LLL,LLI,LLE);
+			break;
+		case 2:
+			Dev(LLL,LLI,LLE);
+			break;
+		case 3:
+			return;
+		default:
+			Registros(LLL,LLI,LLE);
+			break;
+	} Registros(LLL,LLI,LLE);
+}
+
+
+void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
+	int aux=0,codli,codle, i;
 	
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nObserve a lista de livros: ");
@@ -481,75 +508,241 @@ void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 			case 3:
 				printf("Emprestado");
 				break;
-		};
+		}
 	}
 	
-	switch(esc){
-		case 1:
-			while(!aux){
-				printf("\n-----------------------------------------------------------------------");
-				printf("\n:Insira o codigo do livro que deseja emprestar: ( (0) Para retornar )");
-				printf("\n-----------------------------------------------------------------------");
-				printf("\n\nDigite um numero: "); scanf("%d",&codli);
-				
-				if(LLI[codli].Status!=1)printf("\nEste livro esta indisponivel!!");
-				if(esc==0)break;
-				else aux=1;
-				}
-			aux=0;
-			while(!aux){
-				printf("\n-----------------------------------------------------------------------");
-				printf("\n:Insira o codigo do usuario para o qual deseja emprestar: ( (0) Para retornar )");
-				printf("\n-----------------------------------------------------------------------");
-				printf("\n\nDigite um numero: "); scanf("%d",&codle);
-				
-				if(LLL[codle].qtdeEmp>=3)printf("\nLimite de emprestimos atingido para este usuario!!");
-				if(esc==0)break;
-				else aux=1;		
-			}
+	while(!aux){
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nInsira o codigo do livro que deseja emprestar: ( (0) Para retornar )");
+		printf("\n-----------------------------------------------------------------------");
+		printf("\n\nDigite um numero: "); scanf("%d",&codli);
+		
+		if(codli==0)return;//Escolheu retornar
+		
+		for(i=1;i<=LLI[0].codigo;i++){
+			if(LLI[i].codigo==codli)aux=1;//Verifica se o livro existe
+		}if(!aux)printf("\nEste livro não existe!");
+		switch(aux){
+			case 0://Se não existir o while continua rerodando
+				break;
+			default://Se existir, verifica o resto das coisas
+				if(LLI[codli].Status!=1){printf("\nEste livro esta indisponivel!!"); aux=0;}
+				break;
+		}
+	}
+	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nObserve a lista de leitores: ");
+	printf("\n-----------------------------------------------------------------------");
+	
+	for(int i=1;i<=LLL[0].codigo;i++){
+		printf("\n\nCódigo: %d | %s - %s - %d - %d | ",LLL[i].codigo, LLL[i].nome, LLL[i].email, LLL[i].qtdeEmp, LLL[i].histMulta);
+	}
+		
+	aux=0;
+	while(!aux){
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nInsira o codigo do usuario para o qual deseja emprestar: ( (0) Para retornar )");
+		printf("\n-----------------------------------------------------------------------");
+		printf("\n\nDigite um numero: "); scanf("%d",&codle);
+		
+		if(codle==0)return;//Escolheu retornar
+		
+		for(i=1;i<=LLL[0].codigo;i++){
+			if(LLL[i].codigo==codle)aux=1;//Veririca se o usuário existe
+		}if(!aux)printf("\nUsuário inválido");
+		switch(aux){
+			case 0://Se não existir o while continua rerodando
+				break;
+			default://Se existir, verifica o resto das coisas
+				if(LLL[codle].qtdeEmp>=3){printf("\nLimite de emprestimos atingido para este usuario!!"); return;}
+				break;
+		}		
+	}
 			
-			char data[20];
-			Emprestimo novoEmp;
-			time_t agora; //Foi definido numa biblioteca de tempo
-			time(&agora);//Função da bib.h que retorna todos os segundos passados desde 1970 (Não ironicamente)
-			struct tm *tempoStruct=localtime(&agora);//Função da bib.h que converte os segundos nas formas de contar
+	char data[20];
+	Emprestimo novoEmp;
+	
+	time_t agora; //Foi definido numa biblioteca de tempo
+	time(&agora);//Função da bib.h que retorna todos os segundos passados desde 1970 (Não ironicamente)
+	struct tm *tempoStruct=localtime(&agora);//Função da bib.h que converte os segundos nas formas de contar
+	
+	novoEmp.codigo=(LLE[0].codigo)+1;
+	novoEmp.codLivro=codli;
+	novoEmp.codLeitor=codle;
+	strftime(data,20,"%d/%m/%Y",tempoStruct);
+	strcpy(novoEmp.data_emp,data);
+		
+	time(&agora);
+	agora=agora+604800;//Segundos em 1 semana
+	tempoStruct=localtime(&agora);
 			
-			novoEmp.codigo=(LLE[0].codigo)+1;
-			novoEmp.codLivro=codli;
-			novoEmp.codLeitor=codle;
-			strftime(data,20,"%d/%m/%Y",tempoStruct);
-			strcpy(novoEmp.data_emp,data);
-			
-			time(&agora);
-			agora=agora+604800;//Segundos em 1 semana
-			tempoStruct=localtime(&agora);
-			
-			strftime(data,20,"%d/%m/%Y",tempoStruct);
-			strcpy(novoEmp.data_dev,data);
-			novoEmp.status=1;
-			
-			printf("%d %d %d %s %s %d",novoEmp.codigo,novoEmp.codLivro,novoEmp.codLeitor,novoEmp.data_emp,novoEmp.data_dev,novoEmp.status);
-			
-			LLE=realloc(LLE,((LLE[0].codigo)+1)*(sizeof(Emprestimo)));
-			LLE[(LLE[0].codigo)+1]=novoEmp;
-			LLE[0].codigo+=1;
-			
-			for(int i=1;i<=LLE[0].codigo;i++){
-				printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
-			}
-			break;
-		case 2:
-			break;
-		case 3:
-			return;
-		default:
-			Registros(LLL,LLI,LLE);
-			break;
-	} Registros(LLL,LLI,LLE);
+	strftime(data,20,"%d/%m/%Y",tempoStruct);
+	strcpy(novoEmp.data_dev,data);
+	novoEmp.status=0;
+	
+	LLE[0].codigo+=1;
+	LLE=realloc(LLE,(LLE[0].codigo)*(sizeof(Emprestimo)));
+	LLE[LLE[0].codigo]=novoEmp;
+	
+	printf("\nLinhas totais: %d",LLE[0].codigo);
+	for(int i=1;i<=LLE[0].codigo;i++){
+		printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
+	}
+	
+	LLI[codli].Status=3;
+	LLI[codli].quTotal-=1;
+	LLL[codle].qtdeEmp+=1;
 }
 
 
 
+void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
+	int aux=0,codli,codle,i;
+	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nObserve a lista de livros: ");
+	printf("\n-----------------------------------------------------------------------");
+	
+	for(int i=1;i<=LLI[0].codigo;i++){
+		printf("\n\nCódigo: %d | %s - %s - %s | ",LLI[i].codigo, LLI[i].titulo, LLI[i].autor, LLI[i].genero);
+		switch(LLI[i].Status){
+			case 1:
+				printf("Disponivel");
+				break;
+			case 2:
+				printf("Reservado");
+				break;
+			case 3:
+				printf("Emprestado");
+				break;
+		}
+	}
+	
+	while(!aux){
+		printf("\n-----------------------------------------------------------------------");
+		printf("\n:Insira o codigo do livro que deseja devolver: ( (0) Para retornar )");
+		printf("\n-----------------------------------------------------------------------");
+		printf("\n\nDigite um numero: "); scanf("%d",&codli);
+		
+		if(codli==0)return;//Escolheu retornar;
+		for(int i=1;i<=LLI[0].codigo;i++){
+			if(LLI[i].codigo==codli)aux=1;//Verifica se o livro existe
+		}
+		if(!aux)printf("\nEste livro não existe!");
+		if(LLI[codli].Status!=3){printf("Este livro não foi emprestado");aux=0;}
+	}
+	
+	printf("\n-----------------------------------------------------------------------");
+	printf("\nObserve a lista de leitores: ");
+	printf("\n-----------------------------------------------------------------------");
+	
+	for(int i=1;i<=LLL[0].codigo;i++){
+		printf("\n\nCódigo: %d | %s - %s - %d - %d | ",LLL[i].codigo, LLL[i].nome, LLL[i].email, LLL[i].qtdeEmp, LLL[i].histMulta);
+	}
+		
+	aux=0;
+	while(!aux){
+		printf("\n-----------------------------------------------------------------------");
+		printf("\nInsira o codigo do usuario para o qual deseja emprestar: ( (0) Para retornar )");
+		printf("\n-----------------------------------------------------------------------");
+		printf("\n\nDigite um numero: "); scanf("%d",&codle);
+		
+		if(codle==0)return;//Escolheu retornar
+		
+		for(i=1;i<=LLL[0].codigo;i++){
+			if(LLL[i].codigo==codle)aux=1;//Veririca se o usuário existe
+		}if(!aux)printf("\nUsuário inválido");
+	}
+	
+	aux=0;
+	for(int i=1;i<=LLE[0].codigo;i++){
+		if(LLE[i].codLeitor==codle){//Procura um codigo de leitor igual ao fornecido
+			if(LLE[i].codLivro==codli){//Quando acha um codigo, ve se o codigo do livro é igual ao fornecido
+				if(LLE[i].status==0){//Se encontra, ve se o emprestimo já foi finalizado no passado ou ainda é pendente 
+					aux=i;
+				}
+			}
+		}
+	}
+	
+	if(aux==0){
+	printf("\nO usuário não emprestou este livro"); 
+	return;
+	}
+	
+	float multa=devMulta(LLE,aux);
+	printf("\nMulta: %f",multa); //Tem que formatar para dar print 
+	
+	if(multa>0)LLL[codle].histMulta+=1;//Se teve multa, poe no historico
+	LLI[codli].Status=temReserva(LLI,codli);//Se nao tem reserva fica disponivel, se tem fica reservado
+	LLI[codli].quTotal+=1;//Coloca a existencia do livro
+	LLE[aux].status=1;//Finaliza o emprestimo
+	
+	for(int i=1;i<=LLE[0].codigo;i++){
+		printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
+	}
+}
+
+
+
+float devMulta(Emprestimo *LLE, int aux){
+	time_t agora;
+	
+	time(&agora);
+	struct tm *tempoStruct=localtime(&agora);
+
+		const char s[2] = "/";//Delimitador 
+		char str[20];
+		strcpy(str,LLE[aux].data_dev);
+		char *dataD=strtok(str, s);//Quebra a string em 3, se deus quiser
+		
+		int diaD=atoi(dataD);
+		dataD=strtok(0,s);//Quer dobrar ou passar pro proximo? Passar pra o proximo!	
+		int mesD=atoi(dataD);
+		dataD=strtok(0,s);
+		int anoD=atoi(dataD);
+
+		char diaHj_c[20], mesHj_c[20], anoHj_c[20];
+		strftime(diaHj_c,20,"%d",tempoStruct);
+		int diaHj=atoi(diaHj_c);
+		strftime(mesHj_c,20,"%m",tempoStruct);
+		int mesHj=atoi(mesHj_c);
+		strftime(anoHj_c,20,"%Y",tempoStruct);
+		int anoHj=atoi(anoHj_c);
+			
+		if(anoD>=anoHj){
+			if(mesD>=mesHj){
+				if(diaD>=diaHj)return 0.0;
+				else{	
+					float res=(diaHj-diaD)*0.50;
+					return res;
+				}
+			}
+			else{
+				int aux = 31-diaD;
+				float res=(aux+diaHj)*0.50;
+				return res;
+			}
+		}
+		else{
+			int aux = 12-mesD;
+			float res=(aux+(mesHj-1)+diaHj)*0.50;
+			return res;
+		}
+		
+	return 0.0;
+}
+
+int temReserva(Livro *LLI, int i){
+	if(LLI[i].numReservas>=1)return 2;
+	else return 1;
+}
+
+int tempoPassado(int data, int data_atual){
+	if(data>=data_atual)return 0;
+	else return data_atual-data;
+}
 
 Reserva *LogReserva(){
 	FILE *poLog = fopen("reservas.txt","r");
