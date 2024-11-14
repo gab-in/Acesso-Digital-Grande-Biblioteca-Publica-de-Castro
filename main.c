@@ -61,7 +61,7 @@ void CadLeitor(Leitor *LLL);
 void CadFunc(Funcionario *LLF);
 void CadLivro(Livro *LLI);
 
-void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
+Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
 
 void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
 float devMulta(Emprestimo *LLE, int aux);
@@ -496,7 +496,7 @@ void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	printf("\nLocal da LLE depois dentro da Registros: %p",LLE);
 	switch(esc){
 		case 1:
-			Emp(LLL,LLI,LLE);
+			LLE=Emp(LLL,LLI,LLE);
 			break;
 		case 2:
 			Dev(LLL,LLI,LLE);
@@ -510,7 +510,7 @@ void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 }
 
 
-void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
+Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	int aux=0,codli,codle, i;
 	
 	printf("\n-----------------------------------------------------------------------");
@@ -538,7 +538,7 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 		printf("\n-----------------------------------------------------------------------");
 		printf("\n\nDigite um numero: "); scanf("%d",&codli);
 		
-		if(codli==0)return;//Escolheu retornar
+		if(codli==0)return LLE;//Escolheu retornar
 		
 		for(i=1;i<=LLI[0].codigo;i++){
 			if(LLI[i].codigo==codli)aux=1;//Verifica se o livro existe
@@ -567,7 +567,7 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 		printf("\n-----------------------------------------------------------------------");
 		printf("\n\nDigite um numero: "); scanf("%d",&codle);
 		
-		if(codle==0)return;//Escolheu retornar
+		if(codle==0)return LLE;//Escolheu retornar
 		
 		for(i=1;i<=LLL[0].codigo;i++){
 			if(LLL[i].codigo==codle)aux=1;//Veririca se o usuário existe
@@ -576,7 +576,7 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 			case 0://Se não existir o while continua rerodando
 				break;
 			default://Se existir, verifica o resto das coisas
-				if(LLL[codle].qtdeEmp>=3){printf("\nLimite de emprestimos atingido para este usuario!!"); return;}
+				if(LLL[codle].qtdeEmp>=3){printf("\nLimite de emprestimos atingido para este usuario!!"); return LLE;}
 				break;
 		}		
 	}
@@ -589,7 +589,7 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	struct tm *tempoStruct;
 	tempoStruct=localtime(&agora);//Função da bib.h que converte os segundos nas formas de contar
 	
-	novoEmp.codigo=(LLE[0].codigo)+1;
+	novoEmp.codigo=(LLE->codigo)+1;
 	novoEmp.codLivro=codli;
 	novoEmp.codLeitor=codle;
 	
@@ -603,16 +603,16 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	strcpy(novoEmp.data_dev,data);
 	novoEmp.status=0;
 	printf("\nLocal da LLE antes da Realloc: %p",LLE);
-	Emprestimo *ptraux=(Emprestimo *)realloc(LLE,sizeof(Emprestimo)*(LLE[0].codigo+2));
+	Emprestimo *ptraux=(Emprestimo *)realloc(LLE,sizeof(Emprestimo)*(LLE->codigo+2));
 	if(ptraux==NULL){
 		printf("\nRealloc de Emprestimo falhou!");
-		return;
+		return LLE;
 	}
 	else{
 		LLE=ptraux;
 		printf("\nLocal da LLE depois da Realloc: %p",LLE);
 	}
-	LLE[0].codigo+=1;
+	LLE->codigo+=1;
 	LLE[LLE[0].codigo]=novoEmp;
 	
 	
@@ -621,8 +621,8 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 		printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
 	}
 	
-	LLI[codli].Status=3;
 	LLI[codli].quTotal-=1;
+	if(LLI[codli].quTotal<=0)LLI[codli].Status=3;
 	LLL[codle].qtdeEmp+=1;
 
 	amzEmp(LLE);
@@ -630,6 +630,8 @@ void Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	amzLivro(LLI);
 	
 	printf("\nLinhas totais(final da emp): %d",(LLE[0].codigo));
+	
+	return LLE;
 }
 
 
@@ -783,7 +785,10 @@ float devMulta(Emprestimo *LLE, int aux){
 }
 
 int temReserva(Livro *LLI, int i){
-	if(LLI[i].numReservas>=1)return 2;
+	if(LLI[i].numReservas>=1){
+		if(LLI[i].quTotal<=LLI[i].numReservas)return 2;
+		else return 1;
+	}
 	else return 1;
 }
 
