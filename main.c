@@ -65,7 +65,7 @@ Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
 
 void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE);
 float devMulta(Emprestimo *LLE, int aux);
-int temReserva(Livro *LLI, int i);
+int temReserva(Livro *LLI, int i, int fator);
 int tempoPassado(int data, int data_atual);
 
 
@@ -492,8 +492,6 @@ void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	printf("\n-----------------------------------------------------------------------");
 	printf("\n(1) Emprestimo | (2) Devolucao | (3) Voltar");
 	printf("\n\nDigite um numero: "); scanf("%d",&esc); while ((getchar()) != '\n');
-	printf("\nLinhas totais(na registros): %d",LLE[0].codigo);
-	printf("\nLocal da LLE depois dentro da Registros: %p",LLE);
 	switch(esc){
 		case 1:
 			LLE=Emp(LLL,LLI,LLE);
@@ -602,7 +600,6 @@ Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	strftime(data,19,"%d/%m/%Y",tempoStruct);
 	strcpy(novoEmp.data_dev,data);
 	novoEmp.status=0;
-	printf("\nLocal da LLE antes da Realloc: %p",LLE);
 	Emprestimo *ptraux=(Emprestimo *)realloc(LLE,sizeof(Emprestimo)*(LLE->codigo+2));
 	if(ptraux==NULL){
 		printf("\nRealloc de Emprestimo falhou!");
@@ -610,7 +607,6 @@ Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	}
 	else{
 		LLE=ptraux;
-		printf("\nLocal da LLE depois da Realloc: %p",LLE);
 	}
 	LLE->codigo+=1;
 	LLE[LLE[0].codigo]=novoEmp;
@@ -621,15 +617,15 @@ Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 		printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
 	}
 	
-	LLI[codli].quTotal-=1;
+	LLI[codli].Status=3; //PReciso saber quantos livros tem, considerando 1 a menos pelo emprestimo
+	aux=-1;
+	temReserva(LLI,codli,aux);
 	if(LLI[codli].quTotal<=0)LLI[codli].Status=3;
 	LLL[codle].qtdeEmp+=1;
 
 	amzEmp(LLE);
 	amzLeitor(LLL);
 	amzLivro(LLI);
-	
-	printf("\nLinhas totais(final da emp): %d",(LLE[0].codigo));
 	
 	return LLE;
 }
@@ -638,8 +634,6 @@ Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 
 void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	int aux=0,codli,codle,i;
-	
-	printf("\nLinhas totais: %d",LLE[0].codigo);
 	
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nObserve a lista de livros: ");
@@ -697,19 +691,14 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	}
 	
 	aux=0;
-	printf("\nLLE[0]: %d",LLE[0].codigo);
-	
 	for(i=1;i<=LLE[0].codigo;i++){
-		printf("\nComeço iteração: %d",i);
 		if(LLE[i].codLeitor==codle){//Procura um codigo de leitor igual ao fornecido
 			if(LLE[i].codLivro==codli){//Quando acha um codigo, ve se o codigo do livro é igual ao fornecido
 				if(LLE[i].status==0){//Se encontra, ve se o emprestimo já foi finalizado no passado ou ainda é pendente 
 					aux=i;
-					printf("\nChegou?");
 				}
 			}
 		}
-		printf("\nComeço iteração: %d",i);
 	}
 	
 	if(aux==0){
@@ -721,9 +710,11 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	printf("\nMulta: %f",multa); //Tem que formatar para dar print 
 	
 	if(multa>0)LLL[codle].histMulta+=1;//Se teve multa, poe no historico
-	LLI[codli].Status=temReserva(LLI,codli);//Se nao tem reserva fica disponivel, se tem fica reservado
+	int fator=0;
+	LLI[codli].Status=temReserva(LLI,codli,fator);//Se nao tem reserva fica disponivel, se tem fica reservado
 	LLI[codli].quTotal+=1;//Coloca a existencia do livro
 	LLE[aux].status=1;//Finaliza o emprestimo
+	LLL[codle].qtdeEmp-=1;
 
 	amzEmp(LLE);
 	amzLeitor(LLL);
@@ -784,13 +775,13 @@ float devMulta(Emprestimo *LLE, int aux){
 	return 0.0;
 }
 
-int temReserva(Livro *LLI, int i){
+int temReserva(Livro *LLI, int i, int fator){
 	if(LLI[i].numReservas>=1){
-		if(LLI[i].quTotal<=LLI[i].numReservas)return 2;
-		else return 1;
+		if((LLI[i].quTotal+fator)<=LLI[i].numReservas)return 2;
+		return 1;
 	}
-	else return 1;
-}
+	return 1;
+}	
 
 int tempoPassado(int data, int data_atual){
 	if(data>=data_atual)return 0;
