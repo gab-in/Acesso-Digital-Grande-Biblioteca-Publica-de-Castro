@@ -313,7 +313,8 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 void CadLeitor(Leitor *LLL){
 	char nome[20],email[25];
 	Leitor novoLeitor;
-	novoLeitor.codigo=((LLL[0].codigo)+1);
+	
+	novoLeitor.codigo=((LLL->codigo)+1);
 	novoLeitor.qtdeEmp=0;
 	novoLeitor.histMulta=0;
 		
@@ -1037,7 +1038,6 @@ Multa *iniHistMulta(Leitor *LLL,Livro *LLI,Emprestimo *LLE){
 }
 
 void atHistMultas(float valor,int leitor, int livro,Multa *HM){
-	printf("gay");
 	HM[0].codigo++;
 	HM=realloc(HM,HM[0].codigo+1*sizeof(Multa));
 	HM[HM[0].codigo].codigo=HM[0].codigo;
