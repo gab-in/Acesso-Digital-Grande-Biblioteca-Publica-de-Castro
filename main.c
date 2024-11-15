@@ -43,8 +43,6 @@ typedef struct multas{
 	float valor;
 }Multa;
 
-
-
 //Funcoes Danh
 int login(Funcionario *user);
 
@@ -57,13 +55,6 @@ void amzLeitor(Leitor *LLL);
 void amzFunc(Funcionario *LLF);
 void amzRez(Reserva *LLR);
 void amzEmp(Emprestimo *LLE);
-
-void apresentarMultas(Livro *LLI,Leitor *LLL,Multa *HM);
-
-void maiorMov(Funcionario *LLF);
-
-void verReservas(Leitor *LLL,Livro *LLI,Reserva *LLR);
-
 
 //Funções Gab
 
@@ -87,7 +78,7 @@ void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE, Reserva *LLR,Multa *HM)
 
 //Funções gerais/básicas do programa
 
-void menuOp();
+void menuOp(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR,Multa *HM);
 
 void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR,Multa *HM);
 
@@ -110,10 +101,20 @@ void atHistMultas(float valor,int leitor, int livro,Multa *HM);
 void relatorios(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR,Multa *HM);
 
 void livroDisp(Livro *LLI);
+
 void livroEmp(Livro *LLI);
+
 void empAtivo(Leitor *LLL,Livro *LLI,Emprestimo *LLE);
 
-int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
+void apresentarMultas(Livro *LLI,Leitor *LLL,Multa *HM);
+
+void maiorMov(Funcionario *LLF);
+
+void verReservas(Leitor *LLL,Livro *LLI,Reserva *LLR);
+
+//MAIN
+int main(){
+	//Mensagem de abertura
 	printf("-----------------------------------------------------------------------");	
 	printf("\nBem vindo(a) ao acesso digital da Grande Biblioteca Publica de Castro!");
 	printf("\n-----------------------------------------------------------------------\n");
@@ -129,31 +130,35 @@ int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 	Multa *HM /*historico de multas*/=iniHistMulta(LLL,LLI,LLE);
 	
 	int aux=login(LLF);
-	while(aux==0) aux=login(LLF);
+	while(aux==0) aux=login(LLF); //chama o login e decide qual menu chamar
 	
 	switch(aux){
 		case 1:
 			menuAdm(LLL, LLF, LLI, LLE, LLR,HM);
 			break;
 		case 2:
-			menuOp();
+			menuOp(LLL,LLF, LLI, LLE, LLR, HM);
 			break;
 		default:
 			break;
 	}
 
+	//Liberar memoria D.alocada
 	free(LLL);
 	free(LLF);
 	free(LLI);
 	free(LLE);
 	free(LLR);
 	free(HM);
+
+	//Fim
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nAgradecemos a preferencia! Volte sempre.");
 	printf("\n-----------------------------------------------------------------------");
 }
 
 int login(Funcionario *user){
+	//inicializacao de variaveis
 	int i,validaNome=0, validaSenha=0;
 	char nome[20],senha[20],cargo[15];
 	fflush(stdin);
@@ -163,12 +168,15 @@ int login(Funcionario *user){
 	inputStr(senha,20);
 	formatarString(nome,1);
 
+	//porcura o nome inserido e pega o cargo
 	for(i=1;i<=sizeof(user);i++){
 		if(strcmp(nome,user[i].nome)==0){
 			validaNome++;
 			strcpy(cargo,user[i].cargo);
 		}
 	}
+	//Valida a senha de acordo com a senha de cada cargo
+	//adm -> 5678 operador -> 1234
 	if(strcmp("adm",cargo)==0){
 		if(strcmp(SENHA_ADM,senha)==0){
 			validaSenha++;
@@ -185,6 +193,7 @@ int login(Funcionario *user){
 		}
 	}
 
+	//retorna a informaacao que esteja incorreta
 	if(validaNome==0 || validaSenha==0){
 		if(validaNome==0){
 			printf("\nNome fora do sistema.");
@@ -199,8 +208,8 @@ int login(Funcionario *user){
 }
 
 void formatarString(char *s,int op){
+	//Essa funcao serve para os nomes dos livros e pessoas ficarem mais apresentavel
 	int i,inicial=1;
-
 	if(op==1){//1 para formatar e ficar como no arquivo
 		for(i=0;*(s+i)!='\0';i++){
 			if(*(s+i)==' '){
@@ -235,7 +244,7 @@ void inputStr(char *str,int tamanho){
     }
 }
 
-void menuOp(){
+void menuOp(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR,Multa *HM){
 	int esc;
 	
 	printf("\n-----------------------------------------------------------------------");
@@ -246,13 +255,14 @@ void menuOp(){
 	
 	switch(esc){
 		case 1: //Escolheu registrar
+			Registros(LLL,LLI,LLE, LLR,HM);	
 			break;
-		case 2:
+		case 2: //Escolheu sair
 			return;
 		default:
-			menuOp();
+			menuOp(LLL,LLF, LLI, LLE, LLR, HM);
 			break;
-	}menuOp();
+	}menuOp(LLL,LLF, LLI, LLE, LLR, HM);
 }
 
 void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva *LLR,Multa *HM){
@@ -261,7 +271,7 @@ void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nPor favor, escolha uma das opcoes listadas abaixo!");
 	printf("\n-----------------------------------------------------------------------");
-	printf("\n(1) Registrar | (2) Cadastrar | (3) Relatorios | (4) Configuracoes | (5) Permissoes |(6) Sair"); 
+	printf("\n(1) Registrar | (2) Cadastrar | (3) Relatorios | (4)  Sair"); 
 	printf("\n\nDigite um numero: "); scanf("%d",&esc);
 	
 	switch(esc){
@@ -274,11 +284,7 @@ void menuAdm(Leitor *LLL, Funcionario *LLF, Livro *LLI, Emprestimo *LLE, Reserva
 		case 3: //Escolheu ver relatorios
 			relatorios(LLL,LLF,LLI,LLE,LLR,HM);
 			break;
-		case 4: //Escolheu configurar (o que quer que isso seja)
-			break;
-		case 5: //Escolheu gerenciar permissoes
-			break;
-		case 6:
+		case 4: //Escolheu sair
 			return;
 		default:
 			menuAdm(LLL,LLF,LLI,LLE,LLR,HM);
@@ -311,6 +317,7 @@ void Cadastros(Leitor *LLL, Funcionario *LLF, Livro *LLI){
 }
 
 void CadLeitor(Leitor *LLL){
+	//cria um novo leitor e recebe informacoes
 	char nome[20],email[25];
 	Leitor novoLeitor;
 	
@@ -318,7 +325,7 @@ void CadLeitor(Leitor *LLL){
 	novoLeitor.qtdeEmp=0;
 	novoLeitor.histMulta=0;
 		
-		//Nome
+	//Nome
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nInforme o seu nome (20 caracteres max.)");
 	printf("\n-----------------------------------------------------------------------");
@@ -332,15 +339,17 @@ void CadLeitor(Leitor *LLL){
 	printf("\n\nDigite: ");inputStr(email,25);
 	strcpy(novoLeitor.email,email);
 
+	//aumenta o espaco de memoria dinamico
 	LLL=realloc(LLL,((LLL[0].codigo)+1)*(sizeof(Leitor)));
-
+	//coloca o novo leitor no ultimo espaco
 	LLL[(LLL[0].codigo)+1]=novoLeitor;
 	LLL[0].codigo+=1;
-	
+	//armazena no arquivo
 	amzLeitor(LLL);
 }
 
 void CadFunc(Funcionario *LLF){
+	//mesma logica do CadLeitor
 	char n[20];
 	Funcionario novoFunc;
 	novoFunc.codigo=((LLF[0].codigo)+1);
@@ -368,6 +377,7 @@ void CadFunc(Funcionario *LLF){
 }
 
 void CadLivro(Livro *LLI){
+	//mesma logica do CadLeitor
 	char titulo[30],autor[20], genero[15];
 	Livro novoLivro;
 	novoLivro.codigo=((LLI[0].codigo)+1);
@@ -449,6 +459,7 @@ void livroDisp(Livro *LLI){
 	printf("\nLivros Disponiveis:");
 	printf("\n-----------------------------------------------------------------------");
 	
+	//procura pelo livro que tenha status 1-disponivel e imprime suas informacoes
 	for(i=1;i<=LLI[0].codigo;i++){
 		if(LLI[i].Status==1){
 			formatarString(LLI[i].titulo,0);
@@ -467,6 +478,7 @@ void livroEmp(Livro *LLI){
 	printf("\nLivros Emprestados:");
 	printf("\n-----------------------------------------------------------------------");
 	
+	//Procura livros com status 3-emprestados e imprimem suas informacoes
 	for(i=1;i<=LLI[0].codigo;i++){
 		if(LLI[i].Status==3){
 			formatarString(LLI[i].titulo,0);
@@ -483,9 +495,11 @@ void empAtivo(Leitor *LLL,Livro *LLI,Emprestimo *LLE){
 	printf("\nEmprestimos Ativos:");
 	printf("\n-----------------------------------------------------------------------");
 	for(int i=1;i<=LLE[0].codigo;i++){
+		//Procura emprestimos ativos=0
 		if(LLE[i].status==0){
 			formatarString(LLL[LLE[i].codLeitor].nome,0);
 			formatarString(LLI[LLE[i].codLivro].titulo,0);
+			//imprime as informacoes de leitores e livros por meio de indices armazenados no Esmprestimos=LLE
 			printf("\n\n%s emprestou \"%s\" em %s, prazo para devolucao ate %s", LLL[LLE[i].codLeitor].nome, LLI[LLE[i].codLivro].titulo, LLE[i].data_emp, LLE[i].data_dev);
 			formatarString(LLL[LLE[i].codLeitor].nome,1);
 			formatarString(LLI[LLE[i].codLivro].titulo,1);
@@ -503,14 +517,16 @@ void Registros(Leitor *LLL, Livro *LLI, Emprestimo *LLE, Reserva *LLR,Multa *HM)
 	printf("\n(1) Emprestimo | (2) Devolucao | (3) Reservar | (4) Voltar");
 	printf("\n\nDigite um numero: "); scanf("%d",&esc); while ((getchar()) != '\n');
 	switch(esc){
-		case 1:
+		case 1: //emprestimos
 			LLE=Emp(LLL,LLI,LLE);
 			break;
-		case 2:
+		case 2: //devolucoes
 			Dev(LLL,LLI,LLE,HM);
 			break;
-		case 3:
+		case 3://reservas
 			LLR=Reservas(LLL,LLI,LLR);
+			//armazena no arquivo as novas reservas
+			amzRez(LLR);
 			break;
 		case 4:
 			return;
@@ -652,8 +668,6 @@ Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	return LLE;
 }
 
-
-
 void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE, Multa *HM){
 	int aux=0,codli,codle,i;
 	
@@ -742,8 +756,6 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE, Multa *HM){
 	amzLeitor(LLL);
 	amzLivro(LLI);
 }
-
-
 
 float devMulta(Emprestimo *LLE, int aux){
 	time_t agora;
@@ -1026,6 +1038,7 @@ Leitor *LogLeitor(){
 }
 
 Multa *iniHistMulta(Leitor *LLL,Livro *LLI,Emprestimo *LLE){
+	//inicializa o vetor das multas
 	int tamanho=1;
 	for(int i=1;i<=LLL[0].codigo;i++){
 		if(LLL[i].histMulta!=0){
@@ -1038,8 +1051,11 @@ Multa *iniHistMulta(Leitor *LLL,Livro *LLI,Emprestimo *LLE){
 }
 
 void atHistMultas(float valor,int leitor, int livro,Multa *HM){
+	//atualiza as informacoes das multas
 	HM[0].codigo++;
+	//realoca para um espaco maior
 	HM=realloc(HM,HM[0].codigo+1*sizeof(Multa));
+	//passa os valores para a memoria dinamicamente alocada
 	HM[HM[0].codigo].codigo=HM[0].codigo;
 	HM[HM[0].codigo].codLivro=livro;
 	HM[HM[0].codigo].codLeitor=leitor;
@@ -1049,6 +1065,7 @@ void atHistMultas(float valor,int leitor, int livro,Multa *HM){
 void apresentarMultas(Livro *LLI,Leitor *LLL,Multa *HM){
 	printf("\nHistorico de Multas:");
 	printf("\n-----------------------------------------------------------------------\n");
+	//apresenta o vetor de structs de multa
 	for(int i=1;i<=HM[0].codigo;i++){
 		formatarString(LLL[HM[i].codLeitor].nome,0);
 		formatarString(LLI[HM[i].codLivro].titulo,0);
@@ -1060,6 +1077,7 @@ void apresentarMultas(Livro *LLI,Leitor *LLL,Multa *HM){
 }
 
 void maiorMov(Funcionario *LLF){
+	//para comparar o maior e o menor movimento compara pelos indices
 	int cmaior=1, cmenor=1;
 	for(int i=1;i<=LLF[0].codigo;i++){
 		if((LLF[cmaior].totalDev+LLF[cmaior].totalEmp)<(LLF[i].totalDev+LLF[i].totalEmp)){
@@ -1069,6 +1087,7 @@ void maiorMov(Funcionario *LLF){
 			cmenor=i;
 		}
 	}
+	//printa o funcionairo com maior e menor movimentacoes
 	printf("\nMovimentacoes relevantes:");
 	printf("\n-----------------------------------------------------------------------");
 	printf("\n\n%s teve a menor menor quantidade de movimentacoes: %d.",LLF[cmenor].nome,(LLF[cmenor].totalDev)+(LLF[cmenor].totalEmp));
@@ -1079,6 +1098,7 @@ void maiorMov(Funcionario *LLF){
 void verReservas(Leitor *LLL,Livro *LLI,Reserva *LLR){
 	printf("\nReservas em aberto:");
 	printf("\n-----------------------------------------------------------------------\n");
+	//printa as informacoes que estao no arquivo de reservas
 	for(int i=1;i<=LLR[0].codigo;i++){
 		formatarString(LLI[LLR[i].codLivro].titulo,0);
 		formatarString(LLL[LLR[i].codLeitor].nome,0);		
@@ -1090,42 +1110,62 @@ void verReservas(Leitor *LLL,Livro *LLI,Reserva *LLR){
 }
 
 void amzLivro(Livro *LLI){
-	FILE *aqv = fopen("livros.txt","w");	
+	//abre o arquivo no modo de escrita
+	FILE *aqv = fopen("livros.txt","w");
+	//escreve no arquivo a quantidade de proximas linhas	
 	fprintf(aqv,"%d",LLI[0].codigo);
+	//escrefe no arquivo linha por linha cada informacao guardada no vetor
 	for(int i=1;i<=LLI[0].codigo;i++){
 		fprintf(aqv,"\n%d %s %s %s %d %d %d",LLI[i].codigo, LLI[i].titulo, LLI[i].autor, LLI[i].genero, LLI[i].Status,LLI[i].numReservas, LLI[i].quTotal);
 	}
+	//fecha o arquivo
 	fclose(aqv);	
 }
 void amzFunc(Funcionario *LLF){
+	//abre o arquivo no modo de escrita
 	FILE *aqv = fopen("funcionarios.txt","w");	
+	//escreve no arquivo a quantidade de proximas linhas	
 	fprintf(aqv,"%d",LLF[0].codigo);
+	//escrefe no arquivo linha por linha cada informacao guardada no vetor
 	for(int i=1;i<=LLF[0].codigo;i++){
 		fprintf(aqv,"\n%d %s %s %d %d",LLF[i].codigo, LLF[i].nome, LLF[i].cargo, LLF[i].totalEmp, LLF[i].totalDev);
 	}
+	//fecha o arquivo
 	fclose(aqv);	
 }
 void amzLeitor(Leitor *LLL){
+	//abre o arquivo no modo de escrita
 	FILE *aqv = fopen("leitores.txt","w");	
+	//escreve no arquivo a quantidade de proximas linhas	
 	fprintf(aqv,"%d",LLL[0].codigo);
+	//escrefe no arquivo linha por linha cada informacao guardada no vetor
 	for(int i=1;i<=LLL[0].codigo;i++){
 		fprintf(aqv,"\n%d %s %s %d %d",LLL[i].codigo, LLL[i].nome, LLL[i].email, LLL[i].qtdeEmp, LLL[i].histMulta);
 	}
+	//fecha o arquivo
 	fclose(aqv);	
 }
 void amzRez(Reserva *LLR){
+	//abre o arquivo no modo de escrita
 	FILE *aqv = fopen("reservas.txt","w");	
+	//escreve no arquivo a quantidade de proximas linhas	
 	fprintf(aqv,"%d",LLR[0].codigo);
+	//escrefe no arquivo linha por linha cada informacao guardada no vetor
 	for(int i=1;i<=LLR[0].codigo;i++){
 		fprintf(aqv,"\n%d %d %d %s",LLR[i].codigo, LLR[i].codLivro, LLR[i].codLeitor, LLR[i].data_reserva);
 	}
+	//fecha o arquivo
 	fclose(aqv);	
 }
 void amzEmp(Emprestimo *LLE){
+	//abre o arquivo no modo de escrita
 	FILE *aqv = fopen("emprestimos.txt","w");	
+	//escreve no arquivo a quantidade de proximas linhas	
 	fprintf(aqv,"%d",LLE[0].codigo);
+	//escrefe no arquivo linha por linha cada informacao guardada no vetor
 	for(int i=1;i<=LLE[0].codigo;i++){
 		fprintf(aqv,"\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
 	}
+	//fecha o arquivo
 	fclose(aqv);	
 }
