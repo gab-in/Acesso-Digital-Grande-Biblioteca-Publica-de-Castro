@@ -142,6 +142,12 @@ int main(){ //Vamo fazer igual foi no jogo, onde a main só faz chamar função
 			break;
 	}
 
+	free(LLL);
+	free(LLF);
+	free(LLI);
+	free(LLE);
+	free(LLR);
+	free(HM);
 	printf("\n-----------------------------------------------------------------------");
 	printf("\nAgradecemos a preferencia! Volte sempre.");
 	printf("\n-----------------------------------------------------------------------");
@@ -330,13 +336,7 @@ void CadLeitor(Leitor *LLL){
 	LLL[(LLL[0].codigo)+1]=novoLeitor;
 	LLL[0].codigo+=1;
 	
-	//tirar dps
-	printf("Leitores: ");			
-	printf("\nPrimeiro coisa do vetor: %d",LLL[0].codigo);
-	for(int i=1;i<=LLL[0].codigo;i++){
-		printf("\n%d %s %s %d %d",LLL[i].codigo, LLL[i].nome, LLL[i].email, LLL[i].qtdeEmp, LLL[i].histMulta);
-	}
-	//
+	amzLeitor(LLL);
 }
 
 void CadFunc(Funcionario *LLF){
@@ -362,13 +362,8 @@ void CadFunc(Funcionario *LLF){
 	LLF=realloc(LLF,((LLF[0].codigo)+1)*(sizeof(Funcionario)));
 	LLF[(LLF[0].codigo)+1]=novoFunc;
 	LLF[0].codigo+=1;
-
-	//tirar dps
-	printf("Funcionarios: ");			
-	printf("\nPrimeiro coisa do vetor: %d",LLF[0].codigo);
-	for(int i=1;i<=LLF[0].codigo;i++){
-		printf("\n%d %s %s %d %d",LLF[i].codigo, LLF[i].nome, LLF[i].cargo, LLF[i].totalEmp, LLF[i].totalDev);
-	}
+	
+	amzFunc(LLF);
 }
 
 void CadLivro(Livro *LLI){
@@ -408,13 +403,8 @@ void CadLivro(Livro *LLI){
 	LLI=realloc(LLI,((LLI[0].codigo)+1)*(sizeof(Livro)));
 	LLI[(LLI[0].codigo)+1]=novoLivro;
 	LLI[0].codigo+=1;
-
-	//tirar dps
-	printf("Livros: ");			
-	printf("\nPrimeiro coisa do vetor: %d",LLI[0].codigo);
-	for(int i=1;i<=LLI[0].codigo;i++){
-		printf("\n%d %s %s %s %d %d %d",LLI[i].codigo, LLI[i].titulo, LLI[i].autor, LLI[i].genero, LLI[i].Status,LLI[i].numReservas, LLI[i].quTotal);
-	}
+	
+	amzLivro(LLI);
 }
 
 
@@ -592,7 +582,7 @@ Emprestimo *Emp(Leitor *LLL, Livro *LLI, Emprestimo *LLE){
 	aux=0;
 	while(!aux){
 		printf("\n-----------------------------------------------------------------------");
-		printf("\nInsira o codigo do usuario: ( (0) Para retornar )");
+		printf("\nInsira o codigo do leitor: ( (0) Para retornar )");
 		printf("\n-----------------------------------------------------------------------");
 		printf("\n\nDigite um numero: "); scanf("%d",&codle);
 		
@@ -738,7 +728,7 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE, Multa *HM){
 	}
 	
 	float multa=devMulta(LLE,aux);
-	printf("\nMulta: %f",multa); //Tem que formatar para dar print 	
+	printf("\nMulta: %.2f",multa); //Tem que formatar para dar print 	
 	if(multa>0)LLL[codle].histMulta+=1;//Se teve multa, poe no historico
 	atHistMultas(multa,codle,codli,HM);
 	int fator=0;
@@ -750,10 +740,6 @@ void Dev(Leitor *LLL, Livro *LLI, Emprestimo *LLE, Multa *HM){
 	amzEmp(LLE);
 	amzLeitor(LLL);
 	amzLivro(LLI);
-	
-	for(int i=1;i<=LLE[0].codigo;i++){
-		printf("\n%d %d %d %s %s %d",LLE[i].codigo, LLE[i].codLivro, LLE[i].codLeitor, LLE[i].data_emp, LLE[i].data_dev, LLE[i].status);
-	}
 }
 
 
@@ -819,7 +805,7 @@ int tempoPassado(int data, int data_atual){
 	else return data_atual-data;
 }
 
-Reserva *Reservas(Leitor *LLL, Livro *LLI, Reserva *LLR){
+Reserva *Reservas(Leitor *LLL, Livro *LLI, Reserva *LLR){ //Minha função mais bonitinho, muah, masterpiece, te amo
 	int aux=0,codli,codle, i;
 	
 	printf("\n-----------------------------------------------------------------------");
@@ -925,11 +911,6 @@ Reserva *Reservas(Leitor *LLL, Livro *LLI, Reserva *LLR){
 	LLR->codigo+=1;
 	LLR[LLR[0].codigo]=novaReserva;
 	
-	//
-	
-	//Gerenciamento Dinâmico
-		
-	//
 	return LLR;
 }
 
@@ -1038,12 +1019,6 @@ Leitor *LogLeitor(){
 	
 	for(i=1;i<=linhas;i++){
 		fscanf(poLog,"%d %s %s %d %d",&liveLog[i].codigo, liveLog[i].nome, liveLog[i].email, &liveLog[i].qtdeEmp, &liveLog[i].histMulta);
-	}
-	//Tirar depois
-	printf("Leitores: ");
-	printf("\nPrimeiro coisa do vetor: %d",liveLog[0].codigo);
-	for(int i=1;i<=linhas;i++){
-		printf("\n%d %s %s %d %d",liveLog[i].codigo, liveLog[i].nome, liveLog[i].email, liveLog[i].qtdeEmp, liveLog[i].histMulta);
 	}
 	fclose(poLog);
 	return liveLog;
